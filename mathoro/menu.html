@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      font-family: Arial, sans-serif;
+    }
+
+    /* HEADER TRANSPARENTE */
+    .header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 70px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      z-index: 30;
+      pointer-events: none;
+      background: transparent;
+    }
+    .header-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      pointer-events: auto;
+    }
+    .logo-img {
+      height: 40px;
+      width: auto;
+      display: block;
+      border-radius: 6px;
+    }
+    .logo-grande {
+      height: 50px;
+    }
+    /* Mover logomath hacia abajo */
+    .logo-izquierda {
+      margin-top: 15px;   /* Baja el logo izquierdo */
+    }
+    /* Mover iniciomath a la izquierda */
+    .header-centro {
+      flex: 1;
+      display: flex;
+      justify-content: flex-start;   /* En lugar de center */
+      align-items: center;
+      padding-left: 440px;            /* Desplaza el logo a la izquierda */
+    }
+    .texto-mathoro {
+  font-size: 24px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: #fff;
+  
+  /* Nuevas líneas para bajarlo */
+  position: relative;
+  top: 6px;   /* Ajusta este número si quieres bajarlo más o menos */
+}
+
+    /* Video a pantalla completa */
+    .video-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background: #000;
+    }
+    video {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      background: #000;
+    }
+
+    /* Botones invisibles */
+    .btn-invisible {
+      position: absolute;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      outline: none;
+      pointer-events: auto;
+      z-index: 10;
+      padding: 0;
+      margin: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-invisible:active {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* Overlay NEGRO */
+    #overlay-negro {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000000;
+      z-index: 20;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      font-size: 2rem;
+      color: #fff;
+    }
+    #overlay-negro.activo {
+      display: flex;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-item">
+      <!-- Logomath con clase para mover hacia abajo -->
+      <img src="logomath.png" alt="Logo Math" class="logo-img logo-grande logo-izquierda">
+      <span class="texto-mathoro">MATHORO</span>
+    </div>
+    <div class="header-item header-centro">
+      <!-- El contenedor ya tiene padding-left para moverlo a la izquierda -->
+      <img src="iniciomath.png" alt="Logo Inicio" class="logo-img">
+    </div>
+    <div class="header-item">
+      <img src="barritamath.png" alt="Logo Barrita" class="logo-img">
+    </div>
+  </header>
+
+  <div class="video-container">
+    <video id="miVideo" autoplay muted playsinline>
+      <source src="videomath.mp4" type="video/mp4">
+      <p>Tu navegador no soporta video HTML5 o no se encontró el archivo.</p>
+    </video>
+
+    <button class="btn-invisible" id="btnControles" type="button"
+     style="position: absolute; left: 8vw; top: 38vh; width: 12vw; height: 30vh; cursor: pointer; transform: rotate(-45deg); background: transparent; border: none;"
+     data-sonido="controles"></button>
+
+<!-- Botón ¡JUGAR! (Se mantiene centrado) -->
+<button class="btn-invisible" id="btnJugar" type="button"
+     style="position: absolute; left: 41vw; top: 70vh; width: 18vw; height: 12vh; cursor: pointer; background: transparent; border: none;"
+     data-sonido="jugar"></button>
+
+<!-- Botón OPCIONES (Ubicado a la derecha) -->
+<button class="btn-invisible" id="btnOpciones" type="button"
+     style="position: absolute; right: 8vw; top: 38vh; width: 12vw; height: 30vh; cursor: pointer; transform: rotate(45deg); background: transparent; border: none;"
+     data-sonido="opciones"></button>
+  </div>
+
+  <div id="overlay-negro"></div>
+
+  <script>
+    (function() {
+      function playBeep(frecuencia = 800, duracion = 150, volumen = 0.3) {
+        try {
+          const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = frecuencia;
+          gain.gain.setValueAtTime(volumen, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duracion / 1000);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + duracion / 1000);
+        } catch (e) {
+          console.warn('Web Audio no soportado');
+        }
+      }
+
+      function mostrarNegro() {
+        const overlay = document.getElementById('overlay-negro');
+        const video = document.getElementById('miVideo');
+        if (video) video.pause();
+        overlay.classList.add('activo');
+        history.pushState({ pagina: 'negro' }, '');
+      }
+
+      function ocultarNegro() {
+        const overlay = document.getElementById('overlay-negro');
+        overlay.classList.remove('activo');
+      }
+
+      function manejarBoton(frecuencia) {
+        playBeep(frecuencia, 200);
+        mostrarNegro();
+      }
+
+      const opciones = document.getElementById('btnOpciones');
+      const jugar = document.getElementById('btnJugar');
+      const controles = document.getElementById('btnControles');
+
+      function agregarEvento(elemento, frecuencia) {
+        const handler = function(e) {
+          e.preventDefault();
+          manejarBoton(frecuencia);
+        };
+        elemento.addEventListener('click', handler);
+        elemento.addEventListener('touchstart', handler, { passive: false });
+      }
+
+      agregarEvento(opciones, 523);
+      agregarEvento(jugar, 659);
+      agregarEvento(controles, 784);
+
+      window.addEventListener('popstate', function() {
+        const overlay = document.getElementById('overlay-negro');
+        if (overlay.classList.contains('activo')) ocultarNegro();
+      });
+
+      document.addEventListener('click', function initAudio() {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (ctx.state === 'suspended') ctx.resume();
+        document.removeEventListener('click', initAudio);
+      }, { once: true });
+
+      const video = document.getElementById('miVideo');
+      video.addEventListener('ended', function() {
+        video.pause();
+        video.currentTime = video.duration || 0;
+      });
+
+      video.addEventListener('error', function() {
+        console.warn('Error al cargar el video. Verifica la ruta y el nombre del archivo.');
+      });
+
+      window.addEventListener('load', function() {
+        const overlay = document.getElementById('overlay-negro');
+        if (overlay.classList.contains('activo')) ocultarNegro();
+      });
+    })();
+  </script>
+</body>
+</html>
