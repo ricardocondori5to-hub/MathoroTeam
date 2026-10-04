@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>MATHORO · Menú</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden; background: #000;
+      font-family: Arial, sans-serif;
+    }
+
+    /* ============ HEADER ============ */
+    .header {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 70px;
+      z-index: 30; pointer-events: none;
+    }
+    .header-item {
+      position: absolute; top: 50%;
+      transform: translateY(-50%);
+      display: flex; align-items: center; gap: 10px;
+      pointer-events: auto;
+    }
+    .header-izq { left: 20px; }
+    .header-centro { left: 50%; transform: translate(-50%, -50%); }
+    .header-der { right: 20px; }
+
+    .logo-img { height: 40px; width: auto; display: block; border-radius: 6px; }
+    .logo-grande { height: 50px; }
+    .logo-izquierda { margin-top: 15px; }
+    .texto-mathoro {
+      font-size: 24px; font-weight: bold; letter-spacing: 1px;
+      color: #FFFFFF; position: relative; top: 6px;
+      text-shadow: 0 2px 6px rgba(33, 17, 11, 0.9),
+                   0 0 14px rgba(203, 181, 143, 0.55);
+    }
+    #btnInicio {
+      cursor: pointer;
+      background: transparent; border: none; outline: none;
+      padding: 0; margin: 0;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.25s ease;
+    }
+    #btnInicio:hover  { transform: scale(1.06); }
+    #btnInicio:active { opacity: 0.75; transform: scale(0.96); }
+
+    /* ============ IMAGEN DE FONDO ============ */
+    .video-container {
+      position: relative;
+      width: 100vw; height: 100vh;
+      background: #000; overflow: hidden;
+    }
+    .video-container img.fondo-menu {
+      display: block; width: 100%; height: 100%;
+      /* Si la imagen se ve deformada, cambia "fill" por "cover" */
+      object-fit: fill;
+      background: #000;
+      -webkit-user-drag: none;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* ============ BOTONES INVISIBLES ============ */
+    .btn-invisible {
+      position: absolute; cursor: pointer;
+      background: transparent; border: none; outline: none;
+      pointer-events: auto; z-index: 10;
+      padding: 0; margin: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-invisible:active { background: rgba(255,255,255,0.15); }
+
+    /* =========================================================
+       FILTRO BRILLANTE + DESTELLOS
+       ========================================================= */
+    .capa-brillo {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 5;
+      mix-blend-mode: soft-light;
+      background: radial-gradient(
+        circle at 50% 40%,
+        rgba(255, 230, 170, 0.65) 0%,
+        rgba(203, 181, 143, 0.35) 40%,
+        transparent 78%
+      );
+      animation: respirar 6s ease-in-out infinite;
+    }
+    @keyframes respirar {
+      0%, 100% { opacity: 0.8; }
+      50%      { opacity: 1; }
+    }
+    .capa-vineta {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 6;
+      background: radial-gradient(
+        ellipse at center,
+        transparent 55%,
+        rgba(101, 50, 27, 0.30) 88%,
+        rgba(33, 17, 11, 0.85) 100%
+      );
+    }
+    .ambiental {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 8;
+      overflow: hidden;
+    }
+    .ambiental span {
+      position: absolute;
+      bottom: -10px;
+      border-radius: 50%;
+      background: #CBB58F;
+      box-shadow: 0 0 8px 2px rgba(203, 181, 143, 0.85),
+                  0 0 16px 4px rgba(255, 230, 170, 0.45);
+      opacity: 0;
+      animation: subir linear infinite;
+    }
+    @keyframes subir {
+      0%   { opacity: 0; transform: translateY(0) scale(0.5); }
+      20%  { opacity: 0.9; }
+      80%  { opacity: 0.9; }
+      100% { opacity: 0; transform: translateY(-110vh) scale(1.3); }
+    }
+
+    /* =========================================================
+       PANTALLA DE CARGA
+       ========================================================= */
+    #pantalla-carga {
+      position: fixed; inset: 0;
+      background: #000; z-index: 50;
+      display: none;
+      justify-content: center; align-items: center;
+    }
+    #pantalla-carga.activo { display: flex; }
+    #pantalla-carga img {
+      display: block;
+      width: 100%; height: 100%;
+      object-fit: fill; background: #000;
+      animation: fadeInCarga 0.45s ease;
+    }
+    @keyframes fadeInCarga { from { opacity: 0; } to { opacity: 1; } }
+
+    /* =========================================================
+       FADE IN / FADE OUT
+       ========================================================= */
+    .fade-pagina {
+      position: fixed; inset: 0;
+      background: #000; z-index: 10000;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity 0.75s ease;
+    }
+    .fade-pagina.listo { opacity: 0; }
+
+    .fade-salida {
+      position: fixed; inset: 0;
+      background: #000; z-index: 10001;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.55s ease;
+    }
+    .fade-salida.activo { opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <div class="fade-pagina" id="fadeIn"></div>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-item header-izq">
+      <img src="imagenes/logomath.png" alt="Logo Math" class="logo-img logo-grande logo-izquierda">
+      <span class="texto-mathoro">MATHORO</span>
+    </div>
+    <div class="header-item header-centro">
+      <button id="btnInicio" type="button" aria-label="Iniciar sesión">
+        <img src="imagenes/iniciomath.png" alt="Inicio" class="logo-img">
+      </button>
+    </div>
+    <div class="header-item header-der">
+      <img src="imagenes/barritamath.png" alt="Logo Barrita" class="logo-img">
+    </div>
+  </header>
+
+  <!-- IMAGEN DE FONDO + BOTONES -->
+  <div class="video-container">
+    <img src="imagenes/menumath.png" alt="Fondo menú" class="fondo-menu">
+
+    <button class="btn-invisible" id="btnControles" type="button"
+      style="position:absolute; left:8vw; top:38vh; width:12vw; height:30vh;
+             transform:rotate(-45deg); background:transparent; border:none;"></button>
+
+    <button class="btn-invisible" id="btnJugar" type="button"
+      style="position:absolute; left:41vw; top:70vh; width:18vw; height:12vh;
+             background:transparent; border:none;"></button>
+
+    <button class="btn-invisible" id="btnOpciones" type="button"
+      style="position:absolute; right:8vw; top:38vh; width:12vw; height:30vh;
+             transform:rotate(45deg); background:transparent; border:none;"></button>
+  </div>
+
+  <!-- FILTRO -->
+  <div class="capa-brillo"></div>
+  <div class="capa-vineta"></div>
+  <div class="ambiental" id="ambiental"></div>
+
+  <!-- CARGA -->
+  <div id="pantalla-carga">
+    <img src="imagenes/cargasmath.png" alt="Cargando...">
+  </div>
+
+  <div class="fade-salida" id="fadeOut"></div>
+
+  <script>
+    (function() {
+      let audioCtx = null;
+      function getAudioCtx() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        return audioCtx;
+      }
+
+      function playBeep(frecuencia, duracion, volumen) {
+        frecuencia = frecuencia || 800;
+        duracion   = duracion   || 150;
+        volumen    = (volumen === undefined) ? 0.3 : volumen;
+        try {
+          const ctx = getAudioCtx();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = frecuencia;
+          gain.gain.setValueAtTime(volumen, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duracion / 1000);
+          osc.connect(gain).connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + duracion / 1000);
+        } catch (e) {}
+      }
+
+      function playWhoosh() {
+        try {
+          const ctx = getAudioCtx();
+          const now = ctx.currentTime;
+          const osc = ctx.createOscillator();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.exponentialRampToValueAtTime(900, now + 0.45);
+          const filtro = ctx.createBiquadFilter();
+          filtro.type = 'lowpass';
+          filtro.frequency.setValueAtTime(500, now);
+          filtro.frequency.exponentialRampToValueAtTime(4500, now + 0.45);
+          filtro.Q.value = 3;
+          const gain = ctx.createGain();
+          gain.gain.setValueAtTime(0.0001, now);
+          gain.gain.exponentialRampToValueAtTime(0.10, now + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+          osc.connect(filtro).connect(gain).connect(ctx.destination);
+          osc.start(now); osc.stop(now + 0.55);
+          setTimeout(function () {
+            const osc2 = ctx.createOscillator();
+            const g2 = ctx.createGain();
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(880, ctx.currentTime);
+            osc2.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.12);
+            g2.gain.setValueAtTime(0.0001, ctx.currentTime);
+            g2.gain.exponentialRampToValueAtTime(0.14, ctx.currentTime + 0.02);
+            g2.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.28);
+            osc2.connect(g2).connect(ctx.destination);
+            osc2.start(); osc2.stop(ctx.currentTime + 0.32);
+          }, 380);
+        } catch (e) {}
+      }
+
+      const btnJugar     = document.getElementById('btnJugar');
+      const btnOpciones  = document.getElementById('btnOpciones');
+      const btnControles = document.getElementById('btnControles');
+      const btnInicio    = document.getElementById('btnInicio');
+      const pantallaCarga= document.getElementById('pantalla-carga');
+      const videoMenu    = null;
+      const fadeIn       = document.getElementById('fadeIn');
+      const fadeOut      = document.getElementById('fadeOut');
+      const ambiental    = document.getElementById('ambiental');
+
+      function viajarA(url, duracion) {
+        duracion = duracion || 600;
+        fadeOut.classList.add('activo');
+        playWhoosh();
+        setTimeout(function () { window.location.href = url; }, duracion);
+      }
+
+      function agregarEvento(elemento, frecuencia, accion) {
+        if (!elemento) return;
+        let bloqueado = false;
+        const handler = function (e) {
+          e.preventDefault();
+          if (bloqueado) return;
+          bloqueado = true;
+          playBeep(frecuencia, 180, 0.28);
+          if (typeof accion === 'function') accion();
+          setTimeout(function () { bloqueado = false; }, 1400);
+        };
+        elemento.addEventListener('click', handler);
+        elemento.addEventListener('touchstart', handler, { passive: false });
+      }
+
+      agregarEvento(btnJugar, 659, function () {
+        if (videoMenu) videoMenu.pause();
+        playBeep(880, 140, 0.20);
+        setTimeout(function () { playBeep(1100, 150, 0.18); }, 110);
+        viajarA('jugar.html', 600);
+      });
+
+      agregarEvento(btnOpciones, 523, function () {
+        if (videoMenu) videoMenu.pause();
+        viajarA('controles.html', 600);
+      });
+
+      agregarEvento(btnControles, 784, function () {
+        if (videoMenu) videoMenu.pause();
+        viajarA('opciones.html', 600);
+      });
+
+      agregarEvento(btnInicio, 880, function () {
+        if (videoMenu) videoMenu.pause();
+        viajarA('login.html', 600);
+      });
+
+      function crearDestellos() {
+        for (let i = 0; i < 32; i++) {
+          const s = document.createElement('span');
+          s.style.left = Math.random() * 100 + 'vw';
+          s.style.animationDuration = (6 + Math.random() * 8) + 's';
+          s.style.animationDelay = (Math.random() * 12) + 's';
+          const tam = 2 + Math.random() * 4;
+          s.style.width = s.style.height = tam + 'px';
+          ambiental.appendChild(s);
+        }
+      }
+
+      window.addEventListener('load', function () {
+        const pre = new Image();
+        pre.src = 'imagenes/cargasmath.png';
+        requestAnimationFrame(function () {
+          setTimeout(function () { fadeIn.classList.add('listo'); }, 60);
+        });
+        crearDestellos();
+      });
+
+      document.addEventListener('click', function initAudio() {
+        getAudioCtx();
+        document.removeEventListener('click', initAudio);
+      }, { once: true });
+    })();
+  </script>
+</body>
+</html>

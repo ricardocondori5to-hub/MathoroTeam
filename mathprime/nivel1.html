@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <title>Nivel 1 · MATHORO</title>
+    <link rel="stylesheet" href="estilos.css">
+    <script type="module" src="uiController.js"></script>
+</head>
+<body>
+<div class="contenedor" id="contenedor">
+
+    <img class="fondo" src="imagenes/nivel122.png" alt="Fondo nivel 1">
+
+    <div class="video-wrapper">
+        <video class="video-principal" autoplay muted loop playsinline>
+            <source src="videos/jefemath.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <!-- Barra de vida del jugador -->
+    <div class="barra-vida">
+        <svg class="vida-icono" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="#5a2f1e"
+                  d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3
+                     c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3
+                     19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+        <div class="vida-pista">
+            <div class="vida-fill" id="vidaFill"></div>
+            <span class="escudo-icono-vida" id="escudoVidaIcono">ESC</span>
+        </div>
+    </div>
+
+    <!-- PREGUNTA (HP enemigo, estrellas, combo y poderes) -->
+    <div class="pregunta" id="pregunta">
+        <div class="enemigo-info">
+            <span class="enemigo-label">ENEMIGO <span id="enemigoHPTxt">1000/1000</span></span>
+            <div class="enemigo-barra">
+                <div class="enemigo-fill" id="enemigoFill"></div>
+            </div>
+        </div>
+        <div class="dificultad" id="dificultad">★</div>
+        <div class="pregunta-texto" id="preguntaTexto">x² + 7x + 12 = ?</div>
+        <div class="combo-info">
+            <span class="combo-txt">COMBO</span>
+            <span class="combo-val" id="comboVal">0</span>
+            <span class="multiplicador" id="multiplicador">1x</span>
+        </div>
+        <div class="poderes-row">
+            <button class="poder" id="btnFuria" type="button" disabled>FURIA</button>
+            <button class="poder" id="btn5050" type="button" disabled>50/50</button>
+            <button class="poder" id="btnEscudo" type="button" disabled>ESCUDO</button>
+        </div>
+        <div class="ultimate-panel" aria-label="Energía del ataque especial">
+            <div class="ultimate-energy">
+                <div class="ultimate-heading">
+                    <span>ULTIMATE · RAYO MATEMÁTICO</span>
+                    <span id="ultimateStatus" aria-live="polite">0/3</span>
+                </div>
+                <div class="ultimate-track" id="ultimateTrack" role="progressbar" aria-label="Carga del Rayo Matemático"
+                     aria-valuemin="0" aria-valuemax="3" aria-valuenow="0">
+                    <div class="ultimate-fill" id="ultimateFill"></div>
+                </div>
+            </div>
+            <button class="ultimate-button" id="btnUltimate" type="button" disabled
+                    aria-label="Activar Rayo Matemático, inflige 300 puntos de daño. Atajo: R">
+                RAYO · 300 HP <kbd>R</kbd>
+            </button>
+        </div>
+    </div>
+
+    <button class="opcion" data-index="0" type="button"></button>
+    <button class="opcion" data-index="1" type="button"></button>
+    <button class="opcion" data-index="2" type="button"></button>
+    <button class="opcion" data-index="3" type="button"></button>
+    <button class="opcion" data-index="4" type="button"></button>
+    <button class="opcion" data-index="5" type="button"></button>
+
+    <div class="puntaje">
+        <span class="puntaje-valor" id="puntajeValor">0</span>
+    </div>
+
+    <div class="tiempo">
+        <span class="tiempo-valor" id="tiempoValor">00:00</span>
+    </div>
+
+    <div class="motivacional" id="motivacional">
+        ¡Sigue así, Mathoro!
+    </div>
+
+</div>
+
+<!-- Overlay RAGE MODE -->
+<div class="rage-overlay" id="rageOverlay"></div>
+
+<!-- GAME OVER -->
+<div class="gameover" id="gameover">
+    <video id="videoJefe" autoplay muted playsinline preload="auto" loop>
+        <source src="videos/jefemath.mp4" type="video/mp4">
+    </video>
+    <div class="gameover-capa"></div>
+    <div class="gameover-contenido">
+        <h1 id="tituloFinal">¡Ganaste!</h1>
+        <p id="resumenFinal"></p>
+        <button type="button" id="btnReiniciar">Jugar de nuevo</button>
+    </div>
+</div>
+</body>
+</html>
