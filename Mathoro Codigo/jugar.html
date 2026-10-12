@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#51060e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>MATHORO · Jugar</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden; background: #000;
+      font-family: Arial, sans-serif;
+    }
+
+    /* ============ IMAGEN DE FONDO ============ */
+    .imagen-container {
+      position: relative;
+      width: 100vw; height: 100vh;
+      background: #000; overflow: hidden;
+    }
+    .imagen-container img.fondo-jugar {
+      display: block; width: 100%; height: 100%;
+      object-fit: fill; 
+      background: #000;
+      -webkit-user-drag: none;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* =========================================================
+       CAPA DE INTERACCIÓN (INPUTS Y BOTONES INVISIBLES)
+       ========================================================= */
+    #ui-layer {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 10;
+    }
+
+    .hitbox {
+      position: absolute;
+      background: transparent;
+      border: none;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* Estilo específico para los inputs de texto */
+    .input-field {
+      cursor: text;
+      color: #ffffff; /* Texto blanco */
+      font-size: 1.8rem; 
+      font-weight: bold;
+      text-align: center; 
+      
+      /* --- AQUÍ QUITÉ LA SOMBRA --- */
+      /* text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8); */ 
+      
+      background: transparent;
+      padding: 0 10px;
+    }
+
+    /* Efecto visual sutil al hacer clic en un input */
+    .input-field:focus {
+      background: rgba(255, 255, 255, 0.2); 
+      border-radius: 10px;
+    }
+
+  </style>
+  <link rel="stylesheet" href="pwa-responsive.css">
+  <link rel="stylesheet" href="transiciones.css">
+  <script defer src="pwa-runtime.js"></script>
+  <script defer src="transiciones.js"></script>
+  <script defer src="sonidos-ui.js"></script>
+</head>
+<body>
+
+  <!-- IMAGEN DE FONDO -->
+  <div class="imagen-container">
+    <img src="imagenes/jugarmath.png" alt="Jugar" class="fondo-jugar">
+  </div>
+
+  <!-- CAPA DE INTERACCIÓN -->
+  <div id="ui-layer">
+    <!-- Botón Regresar (Arriba a la derecha) -->
+    <button id="btnRegresar" class="hitbox" style="left: 88%; top: 3%; width: 10%; height: 12%;" title="Volver"></button>
+
+    <!-- Campo de Texto Nombre (Bajado a top: 37%) -->
+    <input type="text" id="inputNombre" class="hitbox input-field" 
+           style="left: 4%; top: 37%; width: 33%; height: 5%;" 
+           autocomplete="off">
+
+    <!-- Campo de Texto Apellido (Bajado a top: 37%) -->
+    <input type="text" id="inputApellido" class="hitbox input-field" 
+           style="left: 63%; top: 37%; width: 33%; height: 5%;" 
+           autocomplete="off">
+
+    <!-- Campo de Texto Código (Bajado a top: 52%) -->
+    <input type="text" id="inputCodigo" class="hitbox input-field" 
+           style="left: 31%; top: 54%; width: 38%; height: 5%;" 
+           autocomplete="off">
+
+    <!-- Botón UNIRSE -->
+    <button id="btnUnirse" class="hitbox" 
+            style="left: 35%; top: 66%; width: 30%; height: 23%;" 
+            title="Unirse"></button>
+  </div>
+
+  <!-- FILTROS Y EFECTOS -->
+  <script>
+    (function () {
+      window.addEventListener('load', function () {
+        const pre = new Image();
+        pre.src = 'imagenes/jugarmath.png';
+      });
+
+      const btnRegresar = document.getElementById('btnRegresar');
+      const btnUnirse = document.getElementById('btnUnirse');
+      const inputNombre = document.getElementById('inputNombre');
+      const inputApellido = document.getElementById('inputApellido');
+      const inputCodigo = document.getElementById('inputCodigo');
+
+      btnRegresar.addEventListener('click', function() {
+        window.navegarConFade('empiezo.html');
+      });
+
+      btnUnirse.addEventListener('click', function() {
+        const nombre = inputNombre.value.trim();
+        const apellido = inputApellido.value.trim();
+        const codigo = inputCodigo.value.trim();
+
+        if (nombre === "") { alert("Por favor, ingresa tu Nombre."); inputNombre.focus(); return; }
+        if (apellido === "") { alert("Por favor, ingresa tu Apellido."); inputApellido.focus(); return; }
+        if (codigo === "") { alert("Por favor, ingresa tu Código."); inputCodigo.focus(); return; }
+
+        window.navegarConFade('nivel1.html');
+      });
+
+      const inputs = [inputNombre, inputApellido, inputCodigo];
+      inputs.forEach((input, index) => {
+        input.addEventListener('keydown', function(event) {
+          if (event.key === 'Enter') {
+            if (index < inputs.length - 1) {
+              inputs[index + 1].focus(); 
+            } else {
+              btnUnirse.click(); 
+            }
+          }
+        });
+      });
+
+    })();
+  </script>
+</body>
+</html>

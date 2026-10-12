@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#740d0d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>MATHORO · Opciones</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Arial, Helvetica, sans-serif;
+      --panel-x: 14.25%;
+      --panel-width: 43.1%;
+      --thumb-size: clamp(14px, 1.25vw, 22px);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #740d0d;
+    }
+
+    body { min-height: 100svh; }
+
+    .pantalla {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      height: 100svh;
+      overflow: hidden;
+      isolation: isolate;
+      background: #740d0d url("imagenes/opciones.png") center / 100% 100% no-repeat;
+    }
+
+    /* El dibujo original conserva el título, el marco, los iconos y el brazo. */
+    .ajuste {
+      position: absolute;
+      z-index: 2;
+      left: var(--panel-x);
+      width: var(--panel-width);
+      height: clamp(24px, 4.7vh, 48px);
+      margin: 0;
+      padding: 0;
+      appearance: none;
+      -webkit-appearance: none;
+      background: transparent;
+      cursor: pointer;
+      outline: none;
+      touch-action: pan-y;
+    }
+
+    .ajuste--volumen { top: 27.1%; }
+    .ajuste--musica { top: 40.2%; }
+    .ajuste--sensibilidad { top: 52.5%; }
+    .ajuste--brillo { top: 67.1%; }
+
+    .ajuste::-webkit-slider-runnable-track {
+      height: 5px;
+      border: 0;
+      border-radius: 99px;
+      background: linear-gradient(to right, #fff 0 var(--progreso, 50%), rgba(255,255,255,.48) var(--progreso, 50%) 100%);
+      box-shadow: 0 1px 5px #35080780;
+    }
+
+    .ajuste::-moz-range-track {
+      height: 5px;
+      border: 0;
+      border-radius: 99px;
+      background: rgba(255,255,255,.48);
+      box-shadow: 0 1px 5px #35080780;
+    }
+
+    .ajuste::-moz-range-progress {
+      height: 5px;
+      border-radius: 99px;
+      background: #fff;
+    }
+
+    .ajuste::-webkit-slider-thumb {
+      width: var(--thumb-size);
+      height: var(--thumb-size);
+      margin-top: calc((5px - var(--thumb-size)) / 2);
+      border: 3px solid #fff;
+      border-radius: 50%;
+      appearance: none;
+      -webkit-appearance: none;
+      background: #772019;
+      box-shadow: 0 1px 8px #26060590;
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+
+    .ajuste::-moz-range-thumb {
+      width: calc(var(--thumb-size) - 6px);
+      height: calc(var(--thumb-size) - 6px);
+      border: 3px solid #fff;
+      border-radius: 50%;
+      background: #772019;
+      box-shadow: 0 1px 8px #26060590;
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+
+    .ajuste:hover::-webkit-slider-thumb,
+    .ajuste:focus-visible::-webkit-slider-thumb {
+      transform: scale(1.16);
+      box-shadow: 0 0 0 5px #ffffff35, 0 1px 8px #26060590;
+    }
+
+    .ajuste:focus-visible::-moz-range-thumb {
+      box-shadow: 0 0 0 5px #ffffff35, 0 1px 8px #26060590;
+    }
+
+    .boton {
+      position: absolute;
+      z-index: 2;
+      bottom: 4.45%;
+      width: 9.4%;
+      height: 14.4%;
+      min-width: 56px;
+      min-height: 54px;
+      padding: 0;
+      border: 0;
+      border-radius: 30%;
+      color: transparent;
+      background: transparent;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background-color .15s ease, transform .15s ease;
+    }
+
+    .boton:hover { background: #ffffff0c; }
+    .boton:active { transform: scale(.96); }
+    .boton:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+    .boton--volver { left: 10.45%; }
+    .boton--guardar { left: 45.6%; }
+
+    .brillo-preview {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background: #150707;
+      opacity: var(--oscuridad, .2);
+      mix-blend-mode: multiply;
+      transition: opacity .12s ease;
+    }
+
+    .aviso {
+      position: absolute;
+      z-index: 3;
+      left: 32.5%;
+      bottom: 3%;
+      transform: translate(-50%, 12px);
+      padding: .65em 1em;
+      border: 1px solid #ffffff55;
+      border-radius: 999px;
+      color: #fff;
+      background: #35120feF;
+      box-shadow: 0 8px 30px #22060655;
+      font-size: clamp(12px, 1.15vw, 17px);
+      font-weight: 700;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease;
+      white-space: nowrap;
+    }
+
+    .aviso.visible { opacity: 1; transform: translate(-50%, 0); }
+    .solo-lector {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-aspect-ratio: 4/5) {
+      :root { --thumb-size: 18px; }
+      .pantalla { background-size: auto 100%; background-position: 44% center; }
+      .ajuste { left: 14%; width: 43%; height: 4.2vh; }
+      .ajuste--volumen { top: 27.1%; }
+      .ajuste--musica { top: 40.2%; }
+      .ajuste--sensibilidad { top: 52.5%; }
+      .ajuste--brillo { top: 67.1%; }
+      .boton { bottom: 4.5%; width: 10%; height: 12%; }
+      .boton--volver { left: 10.2%; }
+      .boton--guardar { left: 45.5%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+  <link rel="stylesheet" href="pwa-responsive.css">
+  <link rel="stylesheet" href="transiciones.css">
+  <script defer src="pwa-runtime.js"></script>
+  <script defer src="transiciones.js"></script>
+  <script defer src="sonidos-ui.js"></script>
+</head>
+<body>
+  <main class="pantalla" aria-label="Pantalla de opciones de MATHORO">
+    <form id="formulario-opciones" aria-label="Ajustes del juego">
+      <label class="solo-lector" for="volumen">Volumen de efectos</label>
+      <input class="ajuste ajuste--volumen" id="volumen" name="volumen" type="range" min="0" max="100" value="70" aria-label="Volumen de efectos">
+
+      <label class="solo-lector" for="musica">Volumen de música</label>
+      <input class="ajuste ajuste--musica" id="musica" name="musica" type="range" min="0" max="100" value="65" aria-label="Volumen de música">
+
+      <label class="solo-lector" for="sensibilidad">Sensibilidad del mouse</label>
+      <input class="ajuste ajuste--sensibilidad" id="sensibilidad" name="sensibilidad" type="range" min="1" max="100" value="50" aria-label="Sensibilidad del mouse">
+
+      <label class="solo-lector" for="brillo">Brillo de pantalla</label>
+      <input class="ajuste ajuste--brillo" id="brillo" name="brillo" type="range" min="0" max="100" value="80" aria-label="Brillo de pantalla">
+    </form>
+
+    <div class="brillo-preview" id="brillo-preview" aria-hidden="true"></div>
+    <button class="boton boton--volver" id="volver" type="button" aria-label="Volver al menú principal" title="Volver al menú principal"><span class="solo-lector">Volver</span></button>
+    <button class="boton boton--guardar" id="guardar" type="button" aria-label="Guardar opciones" title="Guardar opciones"><span class="solo-lector">Guardar opciones</span></button>
+    <output class="aviso" id="aviso" role="status" aria-live="polite">Cambios guardados</output>
+  </main>
+
+  <script>
+    (() => {
+      const CLAVE = 'mathoro.opciones';
+      const nombres = ['volumen', 'musica', 'sensibilidad', 'brillo'];
+      const controles = Object.fromEntries(nombres.map((nombre) => [nombre, document.getElementById(nombre)]));
+      const aviso = document.getElementById('aviso');
+      const pantalla = document.querySelector('.pantalla');
+      let temporizadorAviso;
+
+      function actualizarVista() {
+        Object.values(controles).forEach((control) => {
+          const porcentaje = ((Number(control.value) - Number(control.min)) / (Number(control.max) - Number(control.min))) * 100;
+          control.style.setProperty('--progreso', `${porcentaje}%`);
+        });
+        const brillo = Number(controles.brillo.value) / 100;
+        pantalla.style.setProperty('--oscuridad', String((1 - brillo) * 0.58));
+      }
+
+      function cargarOpciones() {
+        try {
+          const guardadas = JSON.parse(localStorage.getItem(CLAVE) || '{}');
+          nombres.forEach((nombre) => {
+            const valor = Number(guardadas[nombre]);
+            if (Number.isFinite(valor)) {
+              const control = controles[nombre];
+              control.value = String(Math.min(Number(control.max), Math.max(Number(control.min), valor)));
+            }
+          });
+        } catch (error) {
+          console.warn('No se pudieron leer las opciones guardadas.', error);
+        }
+        actualizarVista();
+      }
+
+      function mostrarAviso(texto) {
+        aviso.textContent = texto;
+        aviso.classList.add('visible');
+        clearTimeout(temporizadorAviso);
+        temporizadorAviso = setTimeout(() => aviso.classList.remove('visible'), 2200);
+      }
+
+      Object.values(controles).forEach((control) => control.addEventListener('input', actualizarVista));
+
+      document.getElementById('guardar').addEventListener('click', () => {
+        const opciones = Object.fromEntries(nombres.map((nombre) => [nombre, Number(controles[nombre].value)]));
+        try {
+          localStorage.setItem(CLAVE, JSON.stringify(opciones));
+          mostrarAviso('Cambios guardados');
+        } catch (error) {
+          console.error('No se pudieron guardar las opciones.', error);
+          mostrarAviso('No se pudieron guardar los cambios');
+        }
+      });
+
+      document.getElementById('volver').addEventListener('click', () => {
+        window.navegarConFade('index.html');
+      });
+
+      cargarOpciones();
+    })();
+  </script>
+</body>
+</html>
