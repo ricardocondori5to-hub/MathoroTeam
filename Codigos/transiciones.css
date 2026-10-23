@@ -1,0 +1,13 @@
+.transicion-pantalla {
+  position: fixed;
+  z-index: 2147483647;
+  inset: 0;
+  background: #000;
+  opacity: 1;
+  pointer-events: none;
+  transition: opacity 380ms ease;
+}
+
+.transicion-pantalla.lista { opacity: 0; }
+.transicion-pantalla.salida { opacity: 1; }
+

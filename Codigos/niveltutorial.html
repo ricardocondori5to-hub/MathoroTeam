@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#321914">
+<title>Tutorial · MATHORO</title>
+<link rel="stylesheet" href="estilos.css">
+<style>
+.tut-overlay {
+    position: fixed; inset: 0; z-index: 600;
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px;
+    background: radial-gradient(ellipse at center,
+        rgba(50,25,20,0.35) 15%, rgba(50,25,20,0.88) 100%);
+    opacity: 0; pointer-events: none;
+    transition: opacity .35s ease;
+}
+.tut-overlay.on { opacity: 1; pointer-events: auto; }
+
+.tut-overlay.passthrough {
+    pointer-events: none;
+    background: radial-gradient(ellipse at center,
+        rgba(50,25,20,0.10) 20%, rgba(50,25,20,0.55) 100%);
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 10px;
+}
+.tut-overlay.passthrough .tut-card {
+    pointer-events: auto;
+    width: min(440px, 60vw);
+    max-height: 46vh;
+    padding: 14px 18px 12px;
+    border-radius: 16px;
+}
+.tut-overlay.passthrough .tut-title {
+    font-size: clamp(14px, 1.7vw, 20px);
+    margin-bottom: 6px;
+}
+.tut-overlay.passthrough .tut-text {
+    font-size: clamp(11px, 1vw, 14px);
+    margin-bottom: 8px;
+}
+.tut-overlay.passthrough .tut-hint {
+    font-size: clamp(10px, 0.9vw, 13px);
+    margin-bottom: 8px;
+}
+
+.tut-card {
+    width: min(580px, 94vw);
+    max-height: 92vh;
+    overflow-y: auto;
+    padding: 22px 26px 18px;
+    text-align: center;
+    color: #F1C991;
+    background: linear-gradient(180deg, #6B3A23 0%, #5A1611 100%);
+    border: 3px solid #F1C991;
+    border-radius: 24px;
+    box-shadow:
+        0 14px 44px rgba(0,0,0,.75),
+        0 0 0 2px rgba(50,25,20,.6) inset,
+        0 0 32px rgba(241,201,145,.28);
+    font-family: "Montserrat", "Trebuchet MS", sans-serif;
+    line-height: 1.35;
+    animation: tutPop .5s cubic-bezier(.2,.9,.3,1.35);
+}
+@keyframes tutPop {
+    0%   { transform: scale(.8) translateY(24px); opacity: 0; }
+    60%  { transform: scale(1.04) translateY(0);  opacity: 1; }
+    100% { transform: scale(1); }
+}
+.tut-title {
+    margin: 0 0 10px;
+    font-size: clamp(18px, 2.3vw, 27px);
+    font-weight: 900; letter-spacing: 1.4px;
+    color: #F1C991;
+    text-shadow: 0 2px 3px rgba(0,0,0,.7);
+}
+.tut-text {
+    margin: 0 0 12px;
+    font-size: clamp(13px, 1.2vw, 17px);
+    color: #FFFFFF; font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0,0,0,.6);
+}
+.tut-text b { color: #F1C991; font-weight: 900; }
+
+.tut-hint {
+    display: block;
+    margin: 0 0 14px;
+    font-size: clamp(12px, 1.1vw, 15px);
+    font-weight: 700;
+    color: #F1C991;
+    letter-spacing: 0.3px;
+    text-shadow: 0 1px 3px rgba(0,0,0,.7);
+}
+.tut-hint[hidden] { display: none; }
+
+.tut-btn {
+    display: inline-block;
+    font-family: inherit;
+    font-size: clamp(14px, 1.2vw, 18px);
+    font-weight: 900; letter-spacing: 1.2px;
+    color: #321914; background: #F1C991;
+    border: 3px solid #94653B; border-radius: 999px;
+    padding: 12px 34px; cursor: pointer;
+    box-shadow: 0 6px 14px rgba(50,25,20,.55);
+    transition: transform .1s ease, background .15s ease;
+}
+.tut-btn:hover  { background: #FFFFFF; }
+.tut-btn:active { transform: scale(.94); }
+.tut-btn[hidden] { display: none; }
+.tut-skip {
+    display: block; margin: 12px auto 0; padding: 4px 10px;
+    background: transparent; border: none;
+    color: rgba(241,201,145,.7);
+    font-family: inherit; font-size: clamp(10px, .85vw, 12px);
+    letter-spacing: 1px; text-decoration: underline; cursor: pointer;
+}
+.tut-skip:hover { color: #F1C991; }
+.tut-progress {
+    display: block; margin-top: 8px;
+    font-size: clamp(10px, .85vw, 12px);
+    color: rgba(241,201,145,.65);
+    letter-spacing: 2px; font-weight: 700;
+}
+.tut-target {
+    outline: 3px dashed #F1C991 !important;
+    outline-offset: 4px;
+    border-radius: 10px;
+    animation: tutTarget .9s ease-in-out infinite alternate;
+    z-index: 20;
+}
+@keyframes tutTarget {
+    from { outline-color: rgba(241,201,145,.4); }
+    to   { outline-color: rgba(241,201,145,1);  }
+}
+
+/* =========================================================
+   CUENTA REGRESIVA 1 · 2 · 3 · ¡YA!
+   ========================================================= */
+.countdown-overlay {
+    position: fixed; inset: 0; z-index: 900;
+    display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(ellipse at center,
+        rgba(50,25,20,0.35) 10%, rgba(50,25,20,0.92) 100%);
+    opacity: 0; pointer-events: none;
+    transition: opacity .3s ease;
+}
+.countdown-overlay.on {
+    opacity: 1; pointer-events: auto;
+}
+.countdown-number {
+    font-family: "Montserrat", "Trebuchet MS", sans-serif;
+    font-weight: 900;
+    font-size: clamp(90px, 22vw, 260px);
+    color: #F1C991;
+    letter-spacing: 4px;
+    text-shadow:
+        0 0 20px rgba(241,201,145,.85),
+        0 0 60px rgba(148,101,59,.7),
+        0 6px 20px rgba(0,0,0,.85);
+    line-height: 1;
+    transform-origin: center center;
+    animation: cdPop .9s cubic-bezier(.2,.9,.3,1.4) both;
+}
+.countdown-number.go {
+    color: #FFFFFF;
+    text-shadow:
+        0 0 30px rgba(241,201,145,1),
+        0 0 90px rgba(241,201,145,.9),
+        0 0 140px rgba(148,101,59,.85),
+        0 6px 22px rgba(0,0,0,.9);
+    animation: cdGo .9s cubic-bezier(.2,.9,.3,1.6) both;
+}
+@keyframes cdPop {
+    0%   { opacity: 0; transform: scale(.3) rotate(-12deg); }
+    35%  { opacity: 1; transform: scale(1.25) rotate(3deg); }
+    60%  { transform: scale(1) rotate(0deg); }
+    100% { opacity: 0; transform: scale(1.35); }
+}
+@keyframes cdGo {
+    0%   { opacity: 0; transform: scale(.3); }
+    30%  { opacity: 1; transform: scale(1.5); }
+    60%  { transform: scale(1.1); }
+    100% { opacity: 0; transform: scale(2.2); }
+}
+
+@media (max-width: 760px) and (orientation: portrait) {
+    .tut-card  { padding: 18px 18px 16px; border-radius: 18px; }
+    .tut-title { font-size: clamp(16px, 5vw, 22px); }
+    .tut-text  { font-size: clamp(12px, 3.6vw, 15px); }
+    .tut-btn   { font-size: clamp(13px, 4vw, 16px); padding: 10px 24px; }
+    .tut-overlay.passthrough .tut-card {
+        width: 96vw;
+        max-height: 40vh;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="contenedor" id="contenedor">
+
+    <img class="fondo" src="imagenes/nivel122.png" alt="Fondo nivel 1">
+
+    <div class="banner-jefe" id="bannerJefe" role="status" aria-live="assertive"></div>
+
+    <div class="boss-timer" id="bossTimer" hidden aria-live="polite">
+        <span id="bossTimerValor">4.0</span><span aria-hidden="true">s</span>
+    </div>
+
+    <div class="video-wrapper">
+        <video class="video-principal" autoplay muted loop playsinline>
+            <source src="videos/jefemath.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <div class="barra-vida-jefe">
+        <div class="barra-pista barra-pista-jefe">
+            <div class="barra-fill barra-fill-enemigo" id="enemigoFill"></div>
+            <span class="barra-hp-texto" id="enemigoHPTxt">1000/1000</span>
+        </div>
+    </div>
+
+    <div class="pregunta" id="pregunta">
+        <div class="barra-vida-jugador">
+            <span class="barra-label">JUGADOR <span id="jugadorHPTxt">5/5</span></span>
+            <div class="barra-pista">
+                <div class="barra-fill barra-fill-jugador" id="vidaFill"></div>
+                <span class="escudo-icono-vida" id="escudoVidaIcono">ESC</span>
+            </div>
+        </div>
+
+        <div class="dificultad" id="dificultad">★☆☆</div>
+        <div class="pregunta-texto" id="preguntaTexto">¿Cuánto es 2 + 3?</div>
+        <div class="combo-info">
+            <span class="combo-txt">COMBO</span>
+            <span class="combo-val" id="comboVal">0</span>
+            <span class="multiplicador" id="multiplicador">1x</span>
+        </div>
+        <div class="poderes-row">
+            <button class="poder" id="btnFuria" type="button" disabled>FURIA</button>
+            <button class="poder" id="btn5050" type="button" disabled>50/50</button>
+            <button class="poder" id="btnEscudo" type="button" disabled>ESCUDO</button>
+        </div>
+        <div class="ultimate-panel" aria-label="Energía del ataque especial">
+            <div class="ultimate-energy">
+                <div class="ultimate-heading">
+                    <span>ULTIMATE · RAYO MATEMÁTICO</span>
+                    <span id="ultimateStatus" aria-live="polite">0/3</span>
+                </div>
+                <div class="ultimate-track" id="ultimateTrack" role="progressbar"
+                     aria-valuemin="0" aria-valuemax="3" aria-valuenow="0">
+                    <div class="ultimate-fill" id="ultimateFill"></div>
+                </div>
+            </div>
+            <button class="ultimate-button" id="btnUltimate" type="button" disabled
+                    aria-label="Activar Rayo Matemático. Atajo: R">
+                RAYO · 300 HP <kbd>R</kbd>
+            </button>
+        </div>
+    </div>
+
+    <button class="opcion" data-index="0" type="button"></button>
+    <button class="opcion" data-index="1" type="button"></button>
+    <button class="opcion" data-index="2" type="button"></button>
+    <button class="opcion" data-index="3" type="button"></button>
+    <button class="opcion" data-index="4" type="button"></button>
+    <button class="opcion" data-index="5" type="button"></button>
+
+    <div class="puntaje">
+        <span class="puntaje-valor" id="puntajeValor">0</span>
+    </div>
+
+    <div class="tiempo">
+        <span class="tiempo-valor" id="tiempoValor">00:00</span>
+    </div>
+
+    <div class="motivacional" id="motivacional">¡Sigue así, Mathoro!</div>
+
+</div>
+
+<div class="rage-overlay" id="rageOverlay"></div>
+
+<div class="tut-overlay" id="tutOverlay">
+    <div class="tut-card" role="dialog" aria-labelledby="tutTitle" aria-describedby="tutText">
+        <h2 class="tut-title" id="tutTitle">Tutorial</h2>
+        <p class="tut-text" id="tutText"></p>
+        <span class="tut-hint" id="tutHint" hidden></span>
+        <button class="tut-btn" id="tutBtn" type="button">Continuar</button>
+        <button class="tut-skip" id="tutSkip" type="button">Saltar tutorial →</button>
+        <span class="tut-progress" id="tutProgress">Paso 1 de 8</span>
+    </div>
+</div>
+
+<!-- Cuenta regresiva antes de entrar al nivel real -->
+<div class="countdown-overlay" id="countdownOverlay">
+    <div class="countdown-number" id="countdownNumber">1</div>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+const TUTORIAL_QUESTIONS = [
+    { pregunta: '¿Cuánto es 2 + 3?',  correcta: '5',  opciones: ['5','4','6','3','7','2']  },
+    { pregunta: '¿Cuánto es 4 × 2?',  correcta: '8',  opciones: ['8','6','4','10','12','16'] },
+    { pregunta: '¿Cuánto es 10 − 3?', correcta: '7',  opciones: ['7','6','8','13','4','5']  },
+    { pregunta: '¿Cuánto es 12 ÷ 4?', correcta: '3',  opciones: ['3','4','2','6','8','12']  },
+    { pregunta: '¿Cuánto es 9 + 1?',  correcta: '10', opciones: ['10','8','9','11','12','19'] },
+    { pregunta: '¿Cuánto es 6 × 3?',  correcta: '18', opciones: ['18','12','21','15','9','24'] },
+    { pregunta: '¿Cuánto es 15 − 5?', correcta: '10', opciones: ['10','5','20','15','11','25'] }
+];
+
+const STEPS = [
+    {
+        title: '¡Bienvenido a MATHORO!',
+        text: 'Soy <b>Mathoro</b>, tu entrenador. En 1 minuto te enseño todo lo que necesitás para jugar.',
+        hint: 'Tocá el botón para empezar',
+        button: '¡Empezar!',
+        action: 'button'
+    },
+    {
+        title: 'Tus vidas y el jefe',
+        text: 'Arriba a la izquierda ves tus <b>5 vidas</b>. Arriba al centro está la barra del jefe con <b>1000 HP</b>.<br><br>Tu meta: <b>bajarle el HP a 0</b> antes de quedarte sin vidas.',
+        hint: 'Cada error te quita 1 vida',
+        button: 'Entendido',
+        action: 'button',
+        highlight: '#enemigoHPTxt'
+    },
+    {
+        title: 'Respondé las preguntas',
+        text: 'En cada turno aparece una pregunta con <b>6 opciones</b>.<br><br>Tocá la respuesta correcta o usá las teclas <b>1–6</b> del teclado.',
+        hint: 'Acerte 1 pregunta para avanzar',
+        action: 'answer',
+        count: 1
+    },
+    {
+        title: '¡Hacé combos!',
+        text: 'Los aciertos seguidos suben tu <b>COMBO</b> y tu <b>MULTIPLICADOR</b>.<br><br>Cada 3 aciertos seguidos sube: <b>1x → 2x → 3x → 4x → 5x</b>.<br>Un error lo resetea a 1x.',
+        hint: 'Acerte 3 seguidas para verlo subir',
+        action: 'answer',
+        count: 3
+    },
+    {
+        title: 'Poderes especiales',
+        text: 'Con <b>2 aciertos seguidos</b> se desbloquean:<br><br><b>FURIA (Q)</b> — duplica daño y puntos del próximo acierto<br><b>50/50 (W)</b> — borra 2 opciones (200 pts)<br><b>ESCUDO (E)</b> — bloquea perder una vida (150 pts)',
+        hint: 'Pulsá cualquier poder para continuar',
+        action: 'power'
+    },
+    {
+        title: 'El Rayo Matemático',
+        text: 'Cada <b>3 aciertos seguidos</b> se carga la barra del <b>RAYO MATEMÁTICO</b>.<br><br>Cuando esté llena, pulsá <b>R</b> o el botón <b>RAYO</b> para infligir <b>300 de daño</b> de un golpe.',
+        hint: '¡Dispará el rayo para avanzar!',
+        action: 'ultimate'
+    },
+    {
+        title: 'Cuidado con el jefe',
+        text: 'Cada 2 turnos, MATHORO usará un <b>ataque especial</b>:<br><br><b>Reloj de Ráfaga</b> — respondé rápido o perdés vida<br><b>Mezcla Sombría</b> — las opciones se ocultan y se mezclan<br><b>Doble o Nada</b> — acierto = 300 daño, fallo = −2 vidas',
+        hint: '¡Atento al cartel superior!',
+        button: '¡Entendido!',
+        action: 'button',
+        highlight: '#bannerJefe'
+    },
+    {
+        title: '¡Estás listo!',
+        text: 'Ya conocés vidas, combos, poderes, el Rayo Matemático y los ataques del jefe.<br><br>¡Que empiece la batalla real!',
+        hint: 'Tocá el botón para empezar a jugar',
+        button: '¡JUGAR!',
+        action: 'button'
+    }
+];
+
+const $ = id => document.getElementById(id);
+const el = {
+    overlay:    $('tutOverlay'),
+    title:      $('tutTitle'),
+    text:       $('tutText'),
+    hint:       $('tutHint'),
+    btn:        $('tutBtn'),
+    skip:       $('tutSkip'),
+    progress:   $('tutProgress'),
+    opciones:   [...document.querySelectorAll('.opcion')],
+    pregunta:   $('preguntaTexto'),
+    dificultad: $('dificultad'),
+    comboVal:   $('comboVal'),
+    multiplicador: $('multiplicador'),
+    puntajeValor: $('puntajeValor'),
+    tiempoValor:  $('tiempoValor'),
+    vidaFill:   $('vidaFill'),
+    jugadorHPTxt: $('jugadorHPTxt'),
+    enemigoFill:  $('enemigoFill'),
+    enemigoHPTxt: $('enemigoHPTxt'),
+    ultimateFill: $('ultimateFill'),
+    ultimateStatus: $('ultimateStatus'),
+    ultimateTrack: $('ultimateTrack'),
+    btnUltimate:  $('btnUltimate'),
+    btnFuria:     $('btnFuria'),
+    btn5050:      $('btn5050'),
+    btnEscudo:    $('btnEscudo'),
+    motivacional: $('motivacional'),
+    contenedor:   $('contenedor'),
+    bannerJefe:   $('bannerJefe'),
+    countdownOverlay: $('countdownOverlay'),
+    countdownNumber:  $('countdownNumber')
+};
+
+const state = {
+    step: 0,
+    lives: 5,
+    enemyHp: 1000,
+    score: 0,
+    combo: 0,
+    ultimate: 0,
+    powersOn: false,
+    correctInStep: 0,
+    neededInStep: 1,
+    qIndex: 0,
+    currentQ: null,
+    usedPower: false,
+    usedUltimate: false
+};
+
+let startTime = Date.now();
+let timerInterval = null;
+
+function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+function fmtTime(ms) {
+    const s = Math.floor(ms / 1000);
+    return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+}
+
+function beep(freq, dur = 0.14, delay = 0, type = 'sine', vol = 0.12) {
+    try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return;
+        window.__tutAC = window.__tutAC || new Ctx();
+        const ctx = window.__tutAC;
+        if (ctx.state === 'suspended') ctx.resume();
+        const t = ctx.currentTime + delay;
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = type;
+        o.frequency.setValueAtTime(freq, t);
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(vol, t + 0.015);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(t); o.stop(t + dur + 0.02);
+    } catch(_) {}
+}
+const sfxCorrect = () => { beep(660, .12); beep(880, .18, .09); };
+const sfxError   = () => { beep(220, .28, 0, 'triangle', .14); beep(165, .32, .08, 'sawtooth', .09); };
+const sfxPower   = () => { [440,660,990].forEach((n,i)=>beep(n,.14,i*.07,'triangle',.12)); };
+const sfxUltimate= () => { [196,392,784,1568].forEach((n,i)=>beep(n,.24,i*.08,'sawtooth',.11)); beep(110,.42,.08,'triangle',.18); };
+const sfxBtn     = () => { beep(880,.08,0,'sine',.08); beep(1320,.10,.05,'sine',.07); };
+const sfxCount   = () => { beep(520,.12,0,'triangle',.14); beep(780,.16,.06,'triangle',.10); };
+const sfxGo      = () => {
+    [523,659,784,1047].forEach((n,i)=>beep(n,.22,i*.07,'triangle',.16));
+    beep(1568,.42,.28,'sawtooth',.14);
+};
+
+function render() {
+    const s = state;
+    el.jugadorHPTxt.textContent = `${s.lives}/5`;
+    el.vidaFill.style.width = `${(s.lives/5)*100}%`;
+    el.enemigoHPTxt.textContent = `${s.enemyHp}/1000`;
+    el.enemigoFill.style.width = `${(s.enemyHp/1000)*100}%`;
+
+    el.comboVal.textContent = String(s.combo);
+    const mult = Math.min(1 + Math.floor(s.combo/3), 5);
+    el.multiplicador.textContent = `${mult}x`;
+    el.multiplicador.className = `multiplicador x${mult}`;
+    el.puntajeValor.textContent = String(s.score);
+
+    el.ultimateFill.style.width = `${(s.ultimate/3)*100}%`;
+    el.ultimateStatus.textContent = s.ultimate >= 3 ? 'CARGADO' : `${s.ultimate}/3`;
+    el.ultimateTrack.setAttribute('aria-valuenow', String(s.ultimate));
+    el.btnUltimate.disabled = s.ultimate < 3;
+    el.btnUltimate.classList.toggle('listo', s.ultimate >= 3);
+
+    el.btnFuria.disabled = !s.powersOn;
+    el.btn5050.disabled  = !s.powersOn;
+    el.btnEscudo.disabled = !s.powersOn;
+}
+
+function clearHighlights() {
+    document.querySelectorAll('.tut-target').forEach(n => n.classList.remove('tut-target'));
+}
+function highlight(selector) {
+    clearHighlights();
+    if (!selector) return;
+    const node = document.querySelector(selector);
+    if (node) node.classList.add('tut-target');
+}
+
+function showStep(i) {
+    cleanupStep();
+    state.step = i;
+    const step = STEPS[i];
+    if (!step) return startCountdown();
+
+    el.title.textContent = step.title;
+    el.text.innerHTML = step.text;
+    el.hint.textContent = step.hint || '';
+    el.hint.hidden = !step.hint;
+    el.btn.textContent = step.button || 'Continuar';
+    el.btn.hidden = step.action !== 'button';
+    el.progress.textContent = `Paso ${i + 1} de ${STEPS.length}`;
+
+    const interactive = step.action !== 'button';
+
+    el.overlay.classList.add('on');
+    el.overlay.classList.toggle('passthrough', interactive);
+
+    const card = el.overlay.querySelector('.tut-card');
+    if (card) {
+        card.style.animation = 'none';
+        void card.offsetWidth;
+        card.style.animation = '';
+    }
+
+    highlight(step.highlight);
+
+    if (step.action === 'button') {
+        el.btn.onclick = () => { sfxBtn(); el.btn.onclick = null; showStep(i + 1); };
+    } else if (step.action === 'answer') {
+        state.correctInStep = 0;
+        state.neededInStep = step.count || 1;
+        state.powersOn = false;
+        state.combo = 0;
+        render();
+        loadQuestion();
+    } else if (step.action === 'power') {
+        state.powersOn = true;
+        state.combo = Math.max(state.combo, 2);
+        render();
+        setupPowerStep();
+    } else if (step.action === 'ultimate') {
+        state.ultimate = 3;
+        render();
+        setupUltimateStep();
+    }
+}
+
+let answerHandlers = [];
+
+function loadQuestion() {
+    const q = TUTORIAL_QUESTIONS[state.qIndex % TUTORIAL_QUESTIONS.length];
+    state.qIndex++;
+    state.currentQ = q;
+    el.pregunta.textContent = q.pregunta;
+    el.dificultad.textContent = '★☆☆';
+    el.dificultad.dataset.nivel = '1';
+
+    const opts = shuffle(q.opciones);
+    el.opciones.forEach((btn, i) => {
+        btn.textContent = opts[i];
+        btn.dataset.valor = opts[i];
+        btn.disabled = false;
+        btn.classList.remove('correcta','incorrecta','descartada','boca-abajo','mezclando');
+        const fn = () => handleAnswer(btn);
+        btn.addEventListener('click', fn);
+        answerHandlers.push({ btn, fn });
+    });
+}
+
+function handleAnswer(btn) {
+    if (!state.currentQ || btn.disabled) return;
+    const ok = btn.dataset.valor === state.currentQ.correcta;
+    el.opciones.forEach(b => b.disabled = true);
+
+    if (ok) {
+        btn.classList.add('correcta');
+        state.combo += 1;
+        const mult = Math.min(1 + Math.floor(state.combo/3), 5);
+        state.enemyHp = Math.max(0, state.enemyHp - 100*mult);
+        state.score += 100*mult;
+        state.ultimate = Math.min(3, state.ultimate + 1);
+        sfxCorrect();
+        render();
+        state.correctInStep++;
+
+        if (state.correctInStep >= state.neededInStep) {
+            setTimeout(() => showStep(state.step + 1), 950);
+        } else {
+            setTimeout(() => { removeAnswerHandlers(); loadQuestion(); }, 950);
+        }
+    } else {
+        btn.classList.add('incorrecta');
+        el.opciones.forEach(b => {
+            if (b.dataset.valor === state.currentQ.correcta) b.classList.add('correcta');
+        });
+        sfxError();
+        state.combo = 0;
+        state.lives = Math.max(1, state.lives - 1);
+        render();
+
+        setTimeout(() => {
+            removeAnswerHandlers();
+            const opts = shuffle(state.currentQ.opciones);
+            el.opciones.forEach((b, i) => {
+                b.textContent = opts[i];
+                b.dataset.valor = opts[i];
+                b.disabled = false;
+                b.classList.remove('correcta','incorrecta');
+                const fn = () => handleAnswer(b);
+                b.addEventListener('click', fn);
+                answerHandlers.push({ btn: b, fn });
+            });
+        }, 1400);
+    }
+}
+
+function removeAnswerHandlers() {
+    answerHandlers.forEach(({ btn, fn }) => btn.removeEventListener('click', fn));
+    answerHandlers = [];
+}
+
+let powerHandlers = [];
+function setupPowerStep() {
+    const bind = (btn, name) => {
+        const fn = () => {
+            if (state.usedPower) return;
+            state.usedPower = true;
+            sfxPower();
+            el.motivacional.textContent = `¡${name} ACTIVADO!`;
+            el.motivacional.style.opacity = '1';
+            btn.classList.add('activo');
+            setTimeout(() => {
+                removePowerHandlers();
+                showStep(state.step + 1);
+            }, 900);
+        };
+        btn.addEventListener('click', fn);
+        powerHandlers.push({ btn, fn });
+    };
+    bind(el.btnFuria, 'FURIA');
+    bind(el.btn5050, '50/50');
+    bind(el.btnEscudo, 'ESCUDO');
+}
+function removePowerHandlers() {
+    powerHandlers.forEach(({ btn, fn }) => btn.removeEventListener('click', fn));
+    powerHandlers = [];
+}
+
+let ultimateHandler = null;
+function setupUltimateStep() {
+    const fn = () => {
+        if (state.usedUltimate) return;
+        state.usedUltimate = true;
+        sfxUltimate();
+        el.btnUltimate.disabled = true;
+        el.btnUltimate.classList.remove('listo');
+
+        el.contenedor.classList.remove('ultimate-active');
+        void el.contenedor.offsetWidth;
+        el.contenedor.classList.add('ultimate-active');
+
+        state.enemyHp = Math.max(0, state.enemyHp - 300);
+        state.ultimate = 0;
+        state.score += 300;
+        render();
+
+        el.motivacional.textContent = '¡RAYO MATEMÁTICO! −300 HP';
+        el.motivacional.style.opacity = '1';
+
+        setTimeout(() => {
+            el.contenedor.classList.remove('ultimate-active');
+            removeUltimateHandler();
+            showStep(state.step + 1);
+        }, 1200);
+    };
+    el.btnUltimate.addEventListener('click', fn);
+    ultimateHandler = fn;
+}
+function removeUltimateHandler() {
+    if (ultimateHandler) {
+        el.btnUltimate.removeEventListener('click', ultimateHandler);
+        ultimateHandler = null;
+    }
+}
+
+function cleanupStep() {
+    removeAnswerHandlers();
+    removePowerHandlers();
+    removeUltimateHandler();
+    state.usedPower = false;
+    state.usedUltimate = false;
+    el.btn.onclick = null;
+
+    el.opciones.forEach(b => {
+        b.disabled = true;
+        b.classList.remove('correcta','incorrecta','descartada');
+    });
+    el.btnFuria.disabled = true;
+    el.btn5050.disabled = true;
+    el.btnEscudo.disabled = true;
+    el.btnFuria.classList.remove('activo');
+    el.btn5050.classList.remove('activo');
+    el.btnEscudo.classList.remove('activo');
+    el.btnUltimate.disabled = true;
+    el.btnUltimate.classList.remove('listo');
+
+    state.powersOn = false;
+    clearHighlights();
+    render();
+}
+
+document.addEventListener('keydown', (e) => {
+    const step = STEPS[state.step];
+    if (!step) return;
+
+    const n = parseInt(e.key, 10);
+    if (step.action === 'answer' && n >= 1 && n <= 6) {
+        const btn = el.opciones[n - 1];
+        if (btn && !btn.disabled) { e.preventDefault(); btn.click(); }
+        return;
+    }
+    const k = e.key.toLowerCase();
+    if (step.action === 'power') {
+        if (k === 'q' && !el.btnFuria.disabled) el.btnFuria.click();
+        if (k === 'w' && !el.btn5050.disabled) el.btn5050.click();
+        if (k === 'e' && !el.btnEscudo.disabled) el.btnEscudo.click();
+    }
+    if (step.action === 'ultimate' && k === 'r' && !el.btnUltimate.disabled) {
+        el.btnUltimate.click();
+    }
+});
+
+/* =========================================================
+   CUENTA REGRESIVA antes de entrar al nivel real
+   ========================================================= */
+function startCountdown() {
+    cleanupStep();
+    el.overlay.classList.remove('on');
+    el.overlay.classList.remove('passthrough');
+    el.motivacional.textContent = '¡Preparate!';
+    el.motivacional.style.opacity = '1';
+
+    const seq = [
+        { text: '1', go: false, sfx: sfxCount },
+        { text: '2', go: false, sfx: sfxCount },
+        { text: '3', go: false, sfx: sfxCount },
+        { text: '¡YA!', go: true, sfx: sfxGo }
+    ];
+
+    el.countdownOverlay.classList.add('on');
+
+    let i = 0;
+    const play = () => {
+        if (i >= seq.length) {
+            // Terminar y pasar al nivel real
+            el.countdownOverlay.classList.remove('on');
+            clearInterval(timerInterval);
+            setTimeout(() => { window.location.href = 'nivel1.html'; }, 250);
+            return;
+        }
+        const step = seq[i];
+        el.countdownNumber.textContent = step.text;
+        el.countdownNumber.classList.toggle('go', step.go);
+
+        // Re-disparar la animación
+        el.countdownNumber.style.animation = 'none';
+        void el.countdownNumber.offsetWidth;
+        el.countdownNumber.style.animation = '';
+
+        try { step.sfx(); } catch(_) {}
+
+        i++;
+        setTimeout(play, 900);
+    };
+    play();
+}
+
+el.skip.addEventListener('click', () => { sfxBtn(); startCountdown(); });
+
+timerInterval = setInterval(() => {
+    el.tiempoValor.textContent = fmtTime(Date.now() - startTime);
+}, 250);
+
+render();
+showStep(0);
+
+})();
+</script>
+</body>
+</html>

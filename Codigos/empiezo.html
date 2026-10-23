@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#51060e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>MATHORO · Empiezo</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden; background: #000;
+      font-family: Arial, sans-serif;
+    }
+
+    .imagen-container {
+      position: relative;
+      width: 100vw; height: 100vh;
+      background: #000; overflow: hidden;
+    }
+    .imagen-container img.fondo-jugar {
+      display: block; width: 100%; height: 100%;
+      object-fit: fill;
+      background: #000;
+      -webkit-user-drag: none;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    #ui-layer {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 10;
+    }
+
+    .hitbox {
+      position: absolute;
+      display: block;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .hitbox:focus-visible { outline: 3px solid #fff2d6; outline-offset: 3px; }
+
+  </style>
+  <link rel="stylesheet" href="pwa-responsive.css">
+  <link rel="stylesheet" href="transiciones.css">
+  <script defer src="pwa-runtime.js"></script>
+  <script defer src="transiciones.js"></script>
+  <script defer src="sonidos-ui.js"></script>
+</head>
+<body>
+
+  <div class="imagen-container">
+    <img src="imagenes/empiezomath.png" alt="Empiezo" class="fondo-jugar">
+  </div>
+
+  <div id="ui-layer">
+    <a id="btnRecomp" class="hitbox" href="recomp.html" aria-label="Recomp" title="Recomp" style="left: 18%; top: 5%; width: 26%; height: 25%;"></a>
+    <a id="btnLogros" class="hitbox" href="logros.html" aria-label="Logros" title="Logros" style="left: 60%; top: 7%; width: 22%; height: 23%;"></a>
+    <a id="btnRanking" class="hitbox" href="ranking.html" aria-label="Ranking" title="Ranking" style="left: 16.5%; top: 45%; width: 28%; height: 14%;"></a>
+    <a id="btnSala" class="hitbox" href="jugar.html" aria-label="Sala" title="Ir a la sala" style="left: 66.5%; top: 45%; width: 18%; height: 14%;"></a>
+    <a id="btnRegresar" class="hitbox" href="index.html" aria-label="Volver al menú principal" title="Volver al menú" style="left: 90.5%; top: 2%; width: 8%; height: 13%;"></a>
+  </div>
+
+  <script>
+    (function () {
+      window.addEventListener('load', function () {
+        const pre = new Image();
+        pre.src = 'imagenes/empiezomath.png';
+      });
+
+    })();
+  </script>
+</body>
+</html>
