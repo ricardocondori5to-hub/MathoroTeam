@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#790d10">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>MATHORO · Ranking</title>
+  <style>
+    :root { color-scheme: dark; font-family: Arial, Helvetica, sans-serif; }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #790d10; }
+    .pantalla {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      height: 100svh;
+      overflow: hidden;
+      isolation: isolate;
+      background: #790d10;
+    }
+    .arte {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+    .podio {
+      position: absolute;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(3px, .55vh, 7px);
+      padding: 1.2%;
+      color: #fff3df;
+      text-align: center;
+      text-shadow: 0 1px 4px #29130c;
+      overflow: hidden;
+    }
+    .podio--primero { left: 13.2%; top: 23.5%; width: 8.4%; height: 23%; }
+    .podio--segundo { left: 4.2%; top: 29%; width: 7.9%; height: 18%; }
+    .podio--tercero { left: 22.5%; top: 29%; width: 7.9%; height: 18%; }
+    .podio .puesto { font-size: clamp(9px, .85vw, 15px); font-weight: 800; color: #f4d39e; }
+    .podio .jugador { max-width: 100%; font-size: clamp(9px, .92vw, 17px); font-weight: 800; overflow-wrap: anywhere; }
+    .podio .puntos { font-size: clamp(11px, 1.25vw, 21px); font-weight: 900; }
+
+    .lista {
+      position: absolute;
+      z-index: 2;
+      top: 18.75%;
+      right: 5.35%;
+      bottom: 3.1%;
+      left: 34.85%;
+      display: flex;
+      flex-direction: column;
+      gap: 2.15vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      scrollbar-width: none;
+      overscroll-behavior: contain;
+    }
+    .lista::-webkit-scrollbar { display: none; }
+    .fila {
+      display: grid;
+      flex: 0 0 7.8vh;
+      grid-template-columns: 15.2% minmax(0, 1fr) auto;
+      align-items: center;
+      gap: clamp(7px, 1.1vw, 18px);
+      min-height: 54px;
+      padding: 0 1.5% 0 0;
+      overflow: hidden;
+      border: clamp(3px, .28vw, 5px) solid #27130d;
+      border-radius: clamp(15px, 1.7vw, 30px);
+      color: #fff5e7;
+      background: linear-gradient(100deg, #57321f 0%, #603820 100%);
+      box-shadow: inset 0 0 0 2px #9a68454d, 0 2px 8px #220a08;
+    }
+    .numero {
+      display: grid;
+      align-self: stretch;
+      place-items: center;
+      border-right: 2px solid #3a1d12;
+      color: #fff7ed;
+      background: linear-gradient(90deg, #4c2919, #59321e);
+      font-size: clamp(19px, 2vw, 34px);
+      font-weight: 900;
+      text-shadow: 0 2px 3px #21100a;
+    }
+    .nombre {
+      min-width: 0;
+      overflow: hidden;
+      font-size: clamp(12px, 1.15vw, 20px);
+      font-weight: 800;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-shadow: 0 1px 3px #28130b;
+    }
+    .puntos-lista {
+      padding-right: 1%;
+      color: #ffe0a5;
+      font-size: clamp(11px, 1.05vw, 18px);
+      font-weight: 900;
+      white-space: nowrap;
+    }
+    .vacio {
+      position: absolute;
+      top: 48%;
+      left: 34.9%;
+      width: 59%;
+      color: #fff2dc;
+      font-size: clamp(14px, 1.3vw, 22px);
+      font-weight: 700;
+      text-align: center;
+      text-shadow: 0 2px 7px #250a08;
+    }
+    .boton-imagen {
+      position: absolute;
+      z-index: 4;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .volver { top: .4%; right: .6%; width: 9.2%; height: 15.6%; border-radius: 50%; }
+    .refrescar { top: 17.8%; right: .4%; width: 3.4%; height: 6.8%; border-radius: 50%; }
+    .abajo { right: .4%; bottom: 1.4%; width: 3.4%; height: 5.1%; border-radius: 50%; }
+    .boton-imagen:hover { background: #fff1d212; }
+    .boton-imagen:active { transform: scale(.96); }
+    .boton-imagen:focus-visible { outline: 3px solid #fff1d6; outline-offset: 2px; }
+    .estado {
+      position: absolute;
+      z-index: 3;
+      bottom: 1.2%;
+      left: 2%;
+      max-width: 30%;
+      color: #fff0d4;
+      font-size: clamp(10px, .85vw, 14px);
+      font-weight: 700;
+      text-shadow: 0 1px 5px #220a08;
+    }
+    .lector {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+    }
+    @media (max-width: 700px) {
+      .podio { gap: 2px; }
+      .podio .puesto { font-size: clamp(7px, 1.4vw, 10px); }
+      .podio .jugador { font-size: clamp(7px, 1.55vw, 11px); }
+      .podio .puntos { font-size: clamp(8px, 1.9vw, 13px); }
+      .fila { min-height: 34px; grid-template-columns: 15% minmax(0, 1fr) auto; gap: 4px; }
+      .numero { font-size: clamp(14px, 3vw, 22px); }
+      .nombre, .puntos-lista { font-size: clamp(8px, 1.7vw, 12px); }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; } }
+  </style>
+  <link rel="stylesheet" href="pwa-responsive.css">
+  <link rel="stylesheet" href="transiciones.css">
+  <script defer src="pwa-runtime.js"></script>
+  <script defer src="transiciones.js"></script>
+  <script defer src="sonidos-ui.js"></script>
+</head>
+<body>
+  <main class="pantalla" aria-label="Ranking de MATHORO">
+    <img class="arte" src="imagenes/ranking.png" alt="Ranking de MATHORO a pantalla completa" draggable="false">
+    <section id="podio" aria-label="Los tres mejores puntajes"></section>
+    <section class="lista" id="lista" aria-label="Puntajes desde el cuarto lugar" aria-live="polite"></section>
+    <p class="vacio" id="vacio" hidden>Todavía no hay puntajes guardados. ¡Juega una partida para inaugurar el ranking!</p>
+    <output class="estado" id="estado" role="status" aria-live="polite">Cargando ranking…</output>
+
+    <button class="boton-imagen volver" id="volver" type="button" aria-label="Volver a la pantalla anterior" title="Volver a la pantalla anterior"><span class="lector">Volver</span></button>
+    <button class="boton-imagen refrescar" id="refrescar" type="button" aria-label="Actualizar ranking" title="Actualizar ranking"><span class="lector">Actualizar</span></button>
+    <button class="boton-imagen abajo" id="abajo" type="button" aria-label="Ver las últimas posiciones" title="Ver las últimas posiciones"><span class="lector">Ver últimas posiciones</span></button>
+  </main>
+
+  <script>
+    (() => {
+      const podio = document.getElementById('podio');
+      const lista = document.getElementById('lista');
+      const vacio = document.getElementById('vacio');
+      const estado = document.getElementById('estado');
+
+      function textoSeguro(tag, className, text) {
+        const element = document.createElement(tag);
+        element.className = className;
+        element.textContent = text;
+        return element;
+      }
+
+      function renderPodio(entries) {
+        podio.replaceChildren();
+        const places = [
+          { className: 'podio--primero', place: 1 },
+          { className: 'podio--segundo', place: 2 },
+          { className: 'podio--tercero', place: 3 }
+        ];
+        places.forEach(({ className, place }) => {
+          const entry = entries[place - 1];
+          if (!entry) return;
+          const card = document.createElement('article');
+          card.className = `podio ${className}`;
+          card.append(
+            textoSeguro('span', 'puesto', `#${place}`),
+            textoSeguro('span', 'jugador', entry.username),
+            textoSeguro('span', 'puntos', `${entry.score} pts`)
+          );
+          podio.appendChild(card);
+        });
+      }
+
+      function renderLista(entries) {
+        lista.replaceChildren();
+        entries.slice(3).forEach((entry, index) => {
+          const rank = index + 4;
+          const row = document.createElement('article');
+          row.className = 'fila';
+          row.setAttribute('aria-label', `Puesto ${rank}: ${entry.username}, ${entry.score} puntos`);
+          row.append(
+            textoSeguro('span', 'numero', String(rank)),
+            textoSeguro('span', 'nombre', entry.username),
+            textoSeguro('span', 'puntos-lista', `${entry.score} pts`)
+          );
+          lista.appendChild(row);
+        });
+      }
+
+      async function cargarRanking() {
+        estado.textContent = 'Cargando ranking…';
+        try {
+          const [scoresResponse, meResponse] = await Promise.all([
+            fetch('/api/leaderboard', { cache: 'no-store', credentials: 'same-origin' }),
+            fetch('/api/me', { cache: 'no-store', credentials: 'same-origin' })
+          ]);
+          const ranking = await readApiJson(scoresResponse);
+          if (!scoresResponse.ok) throw new Error(ranking.error || 'No se pudo cargar el ranking.');
+          const current = meResponse.ok ? await readApiJson(meResponse) : null;
+          const scores = Array.isArray(ranking.scores) ? ranking.scores : [];
+          renderPodio(scores);
+          renderLista(scores);
+          vacio.hidden = scores.length > 0;
+          if (current?.authenticated) {
+            const place = scores.findIndex((item) => item.username === current.user.username);
+            estado.textContent = place >= 0
+              ? `Sesión: ${current.user.username} · Puesto ${place + 1} · Mejor puntaje: ${scores[place].score}`
+              : `Sesión: ${current.user.username} · Aún no tienes un puntaje registrado`;
+          } else {
+            estado.textContent = 'Inicia sesión para guardar tus puntajes.';
+          }
+        } catch (error) {
+          renderPodio([]);
+          renderLista([]);
+          vacio.hidden = false;
+          vacio.textContent = 'No se pudo conectar con la base de datos. Ejecuta iniciar_mathoro.bat y abre el juego desde localhost.';
+          estado.textContent = error instanceof TypeError ? 'Servidor sin conexión' : error.message;
+        }
+      }
+
+      async function readApiJson(response) {
+        if (!(response.headers.get('content-type') || '').includes('application/json')) {
+          throw new Error('El servidor respondió con HTML en vez de JSON. Cierra el servidor incorrecto y ejecuta iniciar_mathoro.bat.');
+        }
+        try { return await response.json(); }
+        catch { throw new Error('El servidor envió JSON inválido. Reinicia MATHORO con iniciar_mathoro.bat.'); }
+      }
+
+      document.getElementById('volver').addEventListener('click', () => { window.navegarConFade('empiezo.html'); });
+      document.getElementById('refrescar').addEventListener('click', cargarRanking);
+      document.getElementById('abajo').addEventListener('click', () => lista.scrollTo({ top: lista.scrollHeight, behavior: 'smooth' }));
+      cargarRanking();
+    })();
+  </script>
+</body>
+</html>

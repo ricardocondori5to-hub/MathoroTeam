@@ -1,0 +1,141 @@
+/* Estos ajustes se aplican solo a la app instalada (standalone). */
+@media (display-mode: standalone) and (orientation: portrait) {
+  body::before {
+    content: "Gira el teléfono\A a posición horizontal\A ↻";
+    position: fixed;
+    z-index: 2147483647;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    gap: 14px;
+    padding: 24px;
+    color: #fff1d8;
+    background: radial-gradient(ellipse at center, #72201a 0%, #51060e 72%);
+    font: 900 clamp(24px, 7vw, 40px)/1.35 "Trebuchet MS", Arial, sans-serif;
+    text-align: center;
+    white-space: pre-line;
+    text-shadow: 0 3px 0 #321914, 0 0 16px #c78c5b99;
+  }
+}
+
+@media (display-mode: standalone) and (orientation: landscape) {
+  html, body {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  body { height: 100dvh; }
+
+  :is(.pantalla, .scene, .escena, .imagen-container, .video-container, .contenedor, #ui-layer) {
+    position: absolute !important;
+    top: calc(50% + (env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) / 2) !important;
+    left: calc(50% + (env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)) / 2) !important;
+    width: min(calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)), calc((100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) * 1.778)) !important;
+    height: auto !important;
+    max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    min-height: 0 !important;
+    aspect-ratio: 1672 / 941;
+    container-type: size;
+    transform: translate(-50%, -50%);
+  }
+
+  :is(button, a, input, [role="button"]) {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .autenticacion {
+    top: 17.5%;
+    width: clamp(165px, 27cqw, 220px);
+    min-width: 0;
+  }
+
+  .pestanas { gap: 2px; margin-bottom: 4px; padding-inline: 0; }
+  .pestana { min-height: 27px; font-size: clamp(9px, 1.65cqw, 12px); }
+  .formulario { gap: 4px; padding: 0; }
+  .campo { gap: 2px; }
+  .campo label { font-size: clamp(9px, 1.45cqw, 11px); }
+  .campo input { height: 25px; font-size: clamp(10px, 1.55cqw, 12px); }
+  .formulario[data-modo="login"] { margin-top: 10px; }
+  .formulario[data-modo="registro"] { gap: 3px; }
+  .formulario[data-modo="registro"] .campo { gap: 1px; }
+  .formulario[data-modo="registro"] .campo input { height: 23px; }
+  .accion { top: 59.25%; width: 24cqw; min-width: 0; height: 6.2%; min-height: 32px; }
+  .accion[data-modo="registro"] .etiqueta-accion { font-size: clamp(9px, 1.6cqw, 12px); }
+  .estado-auth { top: 68%; max-width: 90%; padding: 5px 8px; font-size: clamp(9px, 1.35cqw, 11px); }
+
+  .barra-vida-jugador .barra-pista { height: clamp(8px, 2.5vh, 12px); }
+  .poder { min-height: clamp(30px, 8vh, 40px); }
+  .ultimate-button { min-height: clamp(30px, 8vh, 38px); }
+  .pregunta { padding: 1.5% 2%; gap: 2px; font-size: clamp(11px, 3.1cqh, 15px); }
+  .pregunta-texto { font-size: clamp(11px, 3.1cqh, 15px); line-height: 1.08; overflow-wrap: anywhere; }
+  .opcion { font-size: clamp(10px, 3cqh, 14px); white-space: normal; overflow-wrap: anywhere; padding-inline: 2px; }
+  .motivacional { font-size: clamp(10px, 3cqh, 14px); line-height: 1.05; }
+  .banner-jefe { top: 1.8%; padding: 5px 12px; font-size: clamp(10px, 2.7cqh, 14px); }
+  .boss-timer { top: 12%; padding: 4px 10px; font-size: clamp(10px, 2.7cqh, 14px); }
+}
+
+/* iOS expone el modo instalado con navigator.standalone, no siempre con display-mode. */
+html.pwa-installed.pwa-portrait body::before {
+  content: "Gira el teléfono\A a posición horizontal\A ↻";
+  position: fixed;
+  z-index: 2147483647;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  padding: 24px;
+  color: #fff1d8;
+  background: radial-gradient(ellipse at center, #72201a 0%, #51060e 72%);
+  font: 900 clamp(24px, 7vw, 40px)/1.35 "Trebuchet MS", Arial, sans-serif;
+  text-align: center;
+  white-space: pre-line;
+}
+
+html.pwa-installed.pwa-landscape,
+html.pwa-installed.pwa-landscape body {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+html.pwa-installed.pwa-landscape body { height: 100dvh; }
+
+html.pwa-installed.pwa-landscape :is(.pantalla, .scene, .escena, .imagen-container, .video-container, .contenedor, #ui-layer) {
+  position: absolute !important;
+  top: calc(50% + (env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) / 2) !important;
+  left: calc(50% + (env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)) / 2) !important;
+  width: min(calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)), calc((100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) * 1.778)) !important;
+  height: auto !important;
+  max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  min-height: 0 !important;
+  aspect-ratio: 1672 / 941;
+  container-type: size;
+  transform: translate(-50%, -50%);
+}
+
+html.pwa-installed body { background-color: #51060e; }
+html.pwa-installed.pwa-landscape .header {
+  top: max(4px, env(safe-area-inset-top, 0px));
+  left: 50%;
+  width: min(calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)), calc((100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) * 1.778));
+  height: clamp(38px, 11dvh, 62px);
+  transform: translateX(-50%);
+}
+html.pwa-installed.pwa-landscape .header-izq { left: 10px; }
+html.pwa-installed.pwa-landscape .header-der { right: 10px; }
+html.pwa-installed.pwa-landscape .logo-img { height: clamp(23px, 7dvh, 40px); }
+html.pwa-installed.pwa-landscape .logo-grande { height: clamp(28px, 8dvh, 46px); }
+html.pwa-installed.pwa-landscape .logo-izquierda { margin-top: 0; }
+html.pwa-installed.pwa-landscape .texto-mathoro { font-size: clamp(14px, 4dvh, 22px); }
+html.pwa-installed.pwa-landscape .back-button { top: 2.2%; right: 1.7%; left: auto; }
+html.pwa-installed.pwa-landscape #installApp {
+  right: max(8px, env(safe-area-inset-right, 0px));
+  bottom: max(8px, env(safe-area-inset-bottom, 0px));
+  padding: 7px 10px;
+  font-size: 11px;
+}
