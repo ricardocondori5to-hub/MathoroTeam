@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#51060e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MATHORO">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" sizes="180x180" href="./imagenes/app-icons/apple-touch-icon.png">
+  <title>MATHORO · Menú</title>
+  <script defer src="preferencias.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden; background: #000;
+      font-family: Arial, sans-serif;
+    }
+
+    /* ============ HEADER ============ */
+    .header {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 70px;
+      z-index: 30; pointer-events: none;
+    }
+    .header-item {
+      position: absolute; top: 50%;
+      transform: translateY(-50%);
+      display: flex; align-items: center; gap: 10px;
+      pointer-events: auto;
+    }
+    .header-izq { left: 20px; }
+    .header-centro { left: 50%; transform: translate(-50%, -50%); }
+    .header-der { right: 20px; }
+
+    #installApp {
+      position: fixed; z-index: 40; right: 18px; bottom: 18px;
+      display: inline-block; padding: 0; border: 0; border-radius: 0;
+      background: transparent; color: #fff4df; box-shadow: none;
+      font: 800 14px/1.2 Arial, sans-serif; letter-spacing: .2px;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+    }
+    #installApp[hidden] { display: none; }
+    #installApp:focus-visible { outline: 2px solid #fff4df; outline-offset: 4px; }
+    @media (max-width: 600px) {
+      #installApp { right: 12px; bottom: 12px; font-size: 13px; }
+    }
+
+    .logo-img { height: 40px; width: auto; display: block; border-radius: 6px; }
+    .logo-grande { height: 50px; }
+    .logo-izquierda { margin-top: 15px; }
+    .texto-mathoro {
+      font-size: 24px; font-weight: bold; letter-spacing: 1px;
+      color: #FFFFFF; position: relative; top: 6px;
+      text-shadow: 0 2px 6px rgba(33, 17, 11, 0.9),
+                   0 0 14px rgba(203, 181, 143, 0.55);
+    }
+    #btnInicio {
+      cursor: pointer;
+      background: transparent; border: none; outline: none;
+      padding: 0; margin: 0;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.25s ease;
+    }
+    #btnInicio:hover  { transform: scale(1.06); }
+    #btnInicio:active { opacity: 0.75; transform: scale(0.96); }
+    #btnCuenta { padding: 0; border: 0; background: transparent; cursor: pointer; transition: transform .18s ease; }
+    #btnCuenta:hover { transform: scale(1.06); }
+    #btnCuenta:focus-visible { outline: 3px solid #fff4df; outline-offset: 4px; border-radius: 8px; }
+    .account-dialog {
+      width: min(92vw, 460px);
+      max-height: min(90svh, 740px);
+      overflow: auto;
+      margin: auto;
+      padding: 0;
+      border: 3px solid #94653b;
+      border-radius: 18px;
+      color: #fff1d8;
+      background: #321914;
+      font: 700 16px/1.4 "Trebuchet MS", Arial, sans-serif;
+    }
+    .account-dialog::backdrop { background: #170807d9; }
+    .account-panel { padding: clamp(18px, 4vw, 28px); }
+    .account-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
+    .account-heading h2 { margin: 0; color: #f1c991; font-size: clamp(22px, 4vw, 30px); }
+    .account-close { width: 38px; height: 38px; border: 0; border-radius: 50%; color: #fff1d8; background: #6b3a23; font: 900 24px/1 Arial, sans-serif; cursor: pointer; }
+    .account-form { display: grid; gap: 11px; }
+    .account-form[hidden], .account-login[hidden] { display: none; }
+    .account-form label { display: grid; gap: 4px; color: #f1c991; }
+    .account-form input { width: 100%; min-height: 42px; padding: 8px 10px; border: 1px solid #94653b; border-radius: 8px; color: #fff1d8; background: #512b19; font: inherit; }
+    .account-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 5px; }
+    .account-actions button, .account-login a { display: inline-flex; justify-content: center; align-items: center; min-height: 42px; padding: 8px 15px; border: 2px solid #94653b; border-radius: 9px; color: #fff1d8; background: #6b3a23; font: 800 15px/1.2 "Trebuchet MS", Arial, sans-serif; text-decoration: none; cursor: pointer; }
+    .account-actions button[type="submit"] { color: #321914; background: #f1c991; }
+    .account-message { min-height: 1.4em; margin: 7px 0; color: #ffe3a8; overflow-wrap: anywhere; }
+    .account-login p { margin: 0 0 14px; }
+    .teacher-tools { display: grid; gap: 10px; margin-top: 22px; padding-top: 16px; border-top: 1px solid #94653b; }
+    .teacher-tools[hidden] { display: none; }
+    .teacher-tools h3 { margin: 0; color: #f1c991; font-size: 19px; }
+    .teacher-tools form { display: grid; gap: 8px; }
+    .teacher-tools label { display: grid; gap: 4px; color: #f1c991; }
+    .teacher-tools input { width: 100%; min-height: 40px; padding: 8px 10px; border: 1px solid #94653b; border-radius: 8px; color: #fff1d8; background: #512b19; font: inherit; }
+    .teacher-tools p { margin: 0; }
+    .teacher-players { display: grid; gap: 5px; max-height: 180px; overflow: auto; margin: 0; padding-left: 20px; }
+    .teacher-players li { overflow-wrap: anywhere; }
+
+    /* ============ IMAGEN DE FONDO ============ */
+    .video-container {
+      position: relative;
+      width: 100vw; height: 100vh;
+      background: #000; overflow: hidden;
+    }
+    .video-container img.fondo-menu {
+      display: block; width: 100%; height: 100%;
+      /* Si la imagen se ve deformada, cambia "fill" por "cover" */
+      object-fit: fill;
+      background: #000;
+      -webkit-user-drag: none;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* ============ BOTONES INVISIBLES ============ */
+    .btn-invisible {
+      position: absolute; cursor: pointer;
+      background: transparent; border: none; outline: none;
+      pointer-events: auto; z-index: 10;
+      padding: 0; margin: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-invisible:active { background: rgba(255,255,255,0.15); }
+
+    /* =========================================================
+       PANTALLA DE CARGA
+       ========================================================= */
+    #pantalla-carga {
+      position: fixed; inset: 0;
+      background: #000; z-index: 50;
+      display: none;
+      justify-content: center; align-items: center;
+    }
+    #pantalla-carga.activo { display: flex; }
+    #pantalla-carga img {
+      display: block;
+      width: 100%; height: 100%;
+      object-fit: fill; background: #000;
+      animation: fadeInCarga 0.45s ease;
+    }
+    @keyframes fadeInCarga { from { opacity: 0; } to { opacity: 1; } }
+
+  </style>
+  <link rel="stylesheet" href="pwa-responsive.css">
+  <link rel="stylesheet" href="transiciones.css">
+  <link rel="stylesheet" href="ambiente.css">
+  <script defer src="pwa-runtime.js"></script>
+  <script defer src="transiciones.js"></script>
+  <script defer src="ambiente.js"></script>
+  <script defer src="sonidos-ui.js"></script>
+</head>
+<body>
+
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-item header-izq">
+      <img src="imagenes/logomath.png" alt="Logo Math" class="logo-img logo-grande logo-izquierda">
+      <span class="texto-mathoro">MATHORO</span>
+    </div>
+    <div class="header-item header-centro">
+      <button id="btnInicio" type="button" aria-label="Iniciar sesión">
+        <img src="imagenes/iniciomath.png" alt="Inicio" class="logo-img">
+      </button>
+    </div>
+    <div class="header-item header-der">
+      <button id="btnCuenta" type="button" aria-label="Abrir mi cuenta" title="Mi cuenta" aria-haspopup="dialog" aria-controls="accountDialog">
+        <img src="imagenes/barritamath.png" alt="Mi cuenta" class="logo-img">
+      </button>
+    </div>
+  </header>
+
+  <button id="installApp" type="button" hidden>
+    Instalar aplicación
+  </button>
+
+  <!-- IMAGEN DE FONDO + BOTONES -->
+  <div class="video-container">
+    <img src="imagenes/menumath.png" alt="Fondo menú" class="fondo-menu">
+
+    <button class="btn-invisible" id="btnControles" type="button"
+      style="position:absolute; left:8vw; top:38vh; width:12vw; height:30vh;
+             transform:rotate(-45deg); background:transparent; border:none;"></button>
+
+    <button class="btn-invisible" id="btnJugar" type="button"
+      style="position:absolute; left:41vw; top:70vh; width:18vw; height:12vh;
+             background:transparent; border:none;"></button>
+
+    <button class="btn-invisible" id="btnOpciones" type="button"
+      style="position:absolute; right:8vw; top:38vh; width:12vw; height:30vh;
+             transform:rotate(45deg); background:transparent; border:none;"></button>
+  </div>
+
+  <!-- CARGA -->
+  <div id="pantalla-carga">
+    <img src="imagenes/cargasmath.png" alt="Cargando...">
+  </div>
+
+  <dialog class="account-dialog" id="accountDialog" aria-labelledby="accountTitle">
+    <section class="account-panel">
+      <header class="account-heading">
+        <h2 id="accountTitle">Mi cuenta</h2>
+        <button class="account-close" id="accountClose" type="button" aria-label="Cerrar">×</button>
+      </header>
+      <p class="account-message" id="accountMessage" role="status" aria-live="polite">Cargando cuenta…</p>
+      <form class="account-form" id="accountForm" hidden>
+        <label>Nombre de usuario
+          <input id="accountUsername" name="username" minlength="3" maxlength="10" pattern="[A-Za-z0-9_.-]{3,10}" required autocomplete="username">
+        </label>
+        <label>Correo electrónico
+          <input id="accountEmail" name="email" type="email" maxlength="254" required autocomplete="email">
+        </label>
+        <label>Contraseña actual
+          <input id="accountCurrentPassword" name="currentPassword" type="password" required autocomplete="current-password">
+        </label>
+        <label>Nueva contraseña <span>(opcional; mínimo 8 caracteres)</span>
+          <input id="accountNewPassword" name="newPassword" type="password" minlength="8" maxlength="200" autocomplete="new-password">
+        </label>
+        <div class="account-actions">
+          <button type="submit">Guardar cambios</button>
+          <button type="button" id="accountLogout">Cerrar sesión</button>
+        </div>
+      </form>
+      <section class="teacher-tools" id="teacherTools" hidden aria-labelledby="teacherToolsTitle">
+        <h3 id="teacherToolsTitle">Panel de profesor</h3>
+        <form id="teacherConfigForm">
+          <label for="teacherAccessCode">Código para entrar a una partida</label>
+          <input id="teacherAccessCode" type="text" maxlength="64" autocomplete="off" placeholder="Escribe un código">
+          <p>Comparte este código con tu grupo. Verás los nombres y puntos de quienes lo usen mientras juegan.</p>
+          <div class="account-actions"><button type="submit">Guardar código</button></div>
+        </form>
+        <h3>Jugadores conectados</h3>
+        <p id="teacherPlayersStatus" role="status" aria-live="polite">Cargando jugadores…</p>
+        <ul class="teacher-players" id="teacherPlayers"></ul>
+      </section>
+      <div class="account-login" id="accountLogin" hidden>
+        <p>Inicia sesión para ver y modificar tu usuario, correo y contraseña.</p>
+        <a href="login.html">Ir a iniciar sesión</a>
+      </div>
+    </section>
+  </dialog>
+
+
+  <script>
+    (function() {
+      const btnJugar     = document.getElementById('btnJugar');
+      const btnOpciones  = document.getElementById('btnOpciones');
+      const btnControles = document.getElementById('btnControles');
+      const btnInicio    = document.getElementById('btnInicio');
+      const videoMenu    = null;
+
+      function viajarA(url, duracion) {
+        duracion = duracion || 380;
+        window.navegarConFade(url, duracion);
+      }
+
+      function agregarEvento(elemento, accion) {
+        if (!elemento) return;
+        let bloqueado = false;
+        const handler = function (e) {
+          e.preventDefault();
+          if (bloqueado) return;
+          bloqueado = true;
+          if (typeof accion === 'function') accion();
+          setTimeout(function () { bloqueado = false; }, 1400);
+        };
+        elemento.addEventListener('click', handler);
+        elemento.addEventListener('touchstart', handler, { passive: false });
+      }
+
+      agregarEvento(btnJugar, function () {
+        if (videoMenu) videoMenu.pause();
+        viajarA('empiezo.html', 600);
+      });
+
+      agregarEvento(btnOpciones, function () {
+        if (videoMenu) videoMenu.pause();
+        viajarA('controles.html', 600);
+      });
+
+      agregarEvento(btnControles, function () {
+        if (videoMenu) videoMenu.pause();
+        viajarA('opciones.html', 600);
+      });
+
+      agregarEvento(btnInicio, function () {
+        if (videoMenu) videoMenu.pause();
+        viajarA('login.html', 600);
+      });
+
+      window.addEventListener('load', function () {
+        const pre = new Image();
+        pre.src = 'imagenes/cargasmath.png';
+      });
+
+    })();
+  </script>
+  <script>
+    (() => {
+      const dialog = document.getElementById('accountDialog');
+      const form = document.getElementById('accountForm');
+      const message = document.getElementById('accountMessage');
+      const login = document.getElementById('accountLogin');
+      const teacherTools = document.getElementById('teacherTools');
+      const teacherForm = document.getElementById('teacherConfigForm');
+      const teacherCode = document.getElementById('teacherAccessCode');
+      const teacherStatus = document.getElementById('teacherPlayersStatus');
+      const teacherPlayers = document.getElementById('teacherPlayers');
+      const trigger = document.getElementById('btnCuenta');
+      let teacherPoll = null;
+      const fields = {
+        username: document.getElementById('accountUsername'),
+        email: document.getElementById('accountEmail'),
+        currentPassword: document.getElementById('accountCurrentPassword'),
+        newPassword: document.getElementById('accountNewPassword')
+      };
+      const parseResponse = async (response) => {
+        const type = response.headers.get('content-type') || '';
+        if (!type.includes('application/json')) throw new Error('El servidor no encontró la ruta de cuenta. Actualiza/reinicia el servidor local o revisa el despliegue de Netlify.');
+        return response.json();
+      };
+      async function loadAccount() {
+        if (teacherPoll) { clearInterval(teacherPoll); teacherPoll = null; }
+        message.textContent = 'Cargando cuenta…';
+        message.hidden = false;
+        form.hidden = true;
+        login.hidden = true;
+        teacherTools.hidden = true;
+        try {
+          const response = await fetch('/api/account', { credentials: 'same-origin', cache: 'no-store' });
+          if (response.status === 401) {
+            message.textContent = 'No has iniciado sesión.';
+            login.hidden = false;
+            trigger.setAttribute('aria-label', 'Iniciar sesión o ver mi cuenta');
+            return;
+          }
+          const data = await parseResponse(response);
+          if (!response.ok) {
+            if (response.status === 404 && data.error === 'Ruta API no encontrada.') {
+              throw new Error('El servidor abierto tiene una API anterior. Reinicia el servidor local actualizado o espera a que termine el nuevo deploy de Netlify.');
+            }
+            throw new Error(data.error || 'No se pudo cargar tu cuenta.');
+          }
+          fields.username.value = data.user.username;
+          fields.email.value = data.user.email;
+          fields.currentPassword.value = '';
+          fields.newPassword.value = '';
+          form.hidden = false;
+          message.textContent = `Sesión iniciada como ${data.user.username}.`;
+          trigger.setAttribute('aria-label', `Mi cuenta: ${data.user.username}`);
+          if (data.user.role === 'teacher') {
+            teacherTools.hidden = false;
+            await loadTeacherDashboard();
+            teacherPoll = window.setInterval(loadTeacherDashboard, 10000);
+          }
+        } catch (error) {
+          message.textContent = error instanceof TypeError ? 'No se pudo conectar con la cuenta. Comprueba que MATHORO esté publicado o que el servidor local siga activo.' : error.message;
+          login.hidden = true;
+        }
+      }
+      trigger.addEventListener('click', () => {
+        if (!dialog.open) dialog.showModal();
+        loadAccount();
+      });
+      document.getElementById('accountClose').addEventListener('click', () => dialog.close());
+      dialog.addEventListener('close', () => { if (teacherPoll) { clearInterval(teacherPoll); teacherPoll = null; } });
+      dialog.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (!form.reportValidity()) return;
+        const submit = form.querySelector('[type="submit"]');
+        submit.disabled = true;
+        message.textContent = 'Guardando cambios…';
+        try {
+          const response = await fetch('/api/account', {
+            method: 'POST', credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: fields.username.value.trim(), email: fields.email.value.trim(), currentPassword: fields.currentPassword.value, newPassword: fields.newPassword.value })
+          });
+          const data = await parseResponse(response);
+          if (!response.ok) throw new Error(data.error || 'No se pudieron guardar los cambios.');
+          fields.currentPassword.value = '';
+          fields.newPassword.value = '';
+          message.textContent = `Cambios guardados. Sesión iniciada como ${data.user.username}.`;
+          trigger.setAttribute('aria-label', `Mi cuenta: ${data.user.username}`);
+        } catch (error) {
+          message.textContent = error instanceof TypeError ? 'No se pudo conectar con el servidor.' : error.message;
+        } finally { submit.disabled = false; }
+      });
+      async function loadTeacherDashboard() {
+        try {
+          const response = await fetch('/api/teacher', { credentials: 'same-origin', cache: 'no-store' });
+          const data = await parseResponse(response);
+          if (!response.ok) throw new Error(data.error || 'No se pudo cargar el panel docente.');
+          teacherCode.value = data.accessCode || '';
+          teacherPlayers.replaceChildren();
+          const players = data.players || [];
+          if (!teacherCode.value.trim()) {
+            teacherPlayersStatus.textContent = 'Elige y guarda un código para abrir una partida y ver a sus jugadores.';
+            return;
+          }
+          teacherPlayersStatus.textContent = players.length
+            ? `${players.length} jugador${players.length === 1 ? '' : 'es'} activo${players.length === 1 ? '' : 's'}.`
+            : 'No hay jugadores conectados en este momento.';
+          players.forEach((player) => {
+            const item = document.createElement('li');
+            const started = new Date(player.started_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const score = Number(player.score || 0).toLocaleString('es-AR');
+            item.textContent = `${player.display_name} · ${score} pts · comenzó ${started}`;
+            teacherPlayers.appendChild(item);
+          });
+        } catch (error) { teacherPlayersStatus.textContent = error.message; }
+      }
+      teacherForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const submit = teacherForm.querySelector('[type="submit"]');
+        submit.disabled = true;
+        teacherPlayersStatus.textContent = 'Guardando código…';
+        try {
+          const response = await fetch('/api/teacher', {
+            method: 'POST', credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ accessCode: teacherCode.value.trim() })
+          });
+          const data = await parseResponse(response);
+          if (!response.ok) throw new Error(data.error || 'No se pudo guardar el código.');
+          teacherPlayersStatus.textContent = 'Código de partida guardado.';
+          await loadTeacherDashboard();
+        } catch (error) { teacherPlayersStatus.textContent = error.message; }
+        finally { submit.disabled = false; }
+      });
+      document.getElementById('accountLogout').addEventListener('click', async () => {
+        try {
+          const response = await fetch('/api/logout', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+          const data = await parseResponse(response);
+          if (!response.ok) throw new Error(data.error || 'No se pudo cerrar la sesión.');
+          await loadAccount();
+          message.textContent = 'Sesión cerrada.';
+        } catch (error) { message.textContent = error.message; }
+      });
+    })();
+  </script>
+  <script>
+    (() => {
+      const installButton = document.getElementById('installApp');
+      let installPrompt = null;
+      const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent)
+        || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      const isMobile = window.matchMedia('(max-width: 760px), (pointer: coarse)').matches;
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+
+      if (!isStandalone && (isMobile || isIOS)) installButton.hidden = false;
+
+      window.addEventListener('beforeinstallprompt', (event) => {
+        event.preventDefault();
+        installPrompt = event;
+        installButton.hidden = isStandalone;
+      });
+
+      installButton.addEventListener('click', async () => {
+        if (installPrompt) {
+          installPrompt.prompt();
+          const choice = await installPrompt.userChoice;
+          if (choice.outcome === 'accepted') installButton.hidden = true;
+          installPrompt = null;
+          return;
+        }
+
+        const instructions = isIOS
+          ? 'Para instalar MATHORO: toca Compartir en Safari y elige “Agregar a pantalla de inicio”.'
+          : 'Abre el menú del navegador (⋮) y selecciona “Instalar aplicación” o “Agregar a pantalla principal”.';
+        window.alert(instructions);
+      });
+
+      window.addEventListener('appinstalled', () => {
+        installButton.hidden = true;
+        installPrompt = null;
+      });
+
+      if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js').catch((error) => {
+            console.error('[MATHORO] No se pudo registrar el Service Worker.', error);
+          });
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

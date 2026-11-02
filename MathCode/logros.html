@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#740c0e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>MATHORO · Logros</title>
+  <script defer src="preferencias.js"></script>
+  <style>
+    :root { color-scheme: dark; font-family: Arial, Helvetica, sans-serif; }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #740c0e; }
+    .pantalla {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      height: 100svh;
+      overflow: hidden;
+      isolation: isolate;
+      background: #740c0e;
+    }
+    .fondo {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+    .galeria {
+      position: absolute;
+      inset: 22.8% 8% 3.3%;
+      overflow: hidden;
+      touch-action: pan-y;
+    }
+    .pista {
+      display: flex;
+      width: 200%;
+      height: 100%;
+      transform: translateX(0);
+      transition: transform 520ms cubic-bezier(.22,.78,.25,1);
+      will-change: transform;
+    }
+    .pagina {
+      display: grid;
+      flex: 0 0 50%;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-rows: repeat(3, minmax(0, 1fr));
+      column-gap: 2.7vw;
+      row-gap: 4vh;
+      width: 50%;
+      height: 100%;
+    }
+    .tarjeta {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+      border-radius: 3.2%;
+      transition: filter .16s ease, transform .16s ease;
+    }
+    .tarjeta img {
+      position: absolute;
+      top: 34%;
+      left: 50%;
+      display: block;
+      margin: 0;
+      transform: translate(-50%, -50%);
+      width: 117%;
+      height: 140%;
+      max-width: none;
+      max-height: none;
+      object-fit: contain;
+    }
+    .tarjeta--desbloqueada { background: transparent; }
+    .tarjeta--desbloqueada img { filter: none; }
+    .oscurecer-fondo { position: fixed; z-index: 7; inset: 0; width: 100vw; height: 100svh; opacity: 0; pointer-events: none; transition: opacity .18s ease; }
+    .oscurecer-fondo.activo { opacity: 1; }
+    .descripcion-flotante { position: fixed; z-index: 9; width: max-content; max-width: min(520px, calc(100vw - 24px)); padding: 0; border: 0; border-radius: 0; background: transparent; color: #fff4df; font-size: clamp(12px, 1.1vw, 16px); font-weight: 800; line-height: 1.4; text-align: center; text-shadow: 0 2px 4px #080202, 0 0 8px #080202, 0 0 14px #080202; filter: drop-shadow(0 1px 1px #080202); pointer-events: none; }
+    .descripcion-flotante[hidden] { display: none; }
+    .descripcion { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }
+    .flecha {
+      position: absolute;
+      z-index: 3;
+      top: 49%;
+      display: grid;
+      width: 5.2vw;
+      height: 10vh;
+      place-items: center;
+      padding: 0;
+      border: 0;
+      color: #fff1d8;
+      background: transparent;
+      font: 800 clamp(34px, 5vw, 78px) / 1 Arial, sans-serif;
+      text-shadow: 0 3px 3px #30140d, 0 0 13px #8e5435aa;
+      cursor: pointer;
+      transform: translateY(-50%);
+      transition: color .16s ease, transform .16s ease, text-shadow .16s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .flecha:hover:not(:disabled) { color: #fff; text-shadow: 0 0 5px #fff8, 0 3px 5px #7d482b; transform: translateY(-50%) scale(1.12); }
+    .flecha:active:not(:disabled) { transform: translateY(-50%) scale(.96); }
+    .flecha:focus-visible { outline: 2px solid #fff0d4; outline-offset: 2px; }
+    .flecha:disabled { opacity: .26; cursor: default; }
+    .flecha--anterior { left: .8%; }
+    .flecha--siguiente { right: .8%; }
+    .volver {
+      position: absolute;
+      z-index: 4;
+      top: 1.2%;
+      right: .5%;
+      width: 9%;
+      height: 15.2%;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .volver:hover { background: #fff1d210; }
+    .volver:focus-visible { outline: 3px solid #fff1d6; outline-offset: 2px; }
+    .volver img { display: block; width: 100%; height: 100%; object-fit: contain; }
+    .estado {
+      position: absolute;
+      z-index: 4;
+      right: 10%;
+      bottom: 1.1%;
+      left: 10%;
+      color: #fff1d6;
+      font-size: clamp(10px, .9vw, 15px);
+      font-weight: 700;
+      text-align: center;
+      text-shadow: 0 2px 5px #260906;
+      pointer-events: none;
+    }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    @media (max-width: 700px) {
+      .galeria { inset: 22.8% 8% 3.3%; }
+      .pagina { column-gap: 2.7vw; row-gap: 4vh; }
+      .nombre-logro { font-size: clamp(6px, 1.35vw, 10px); border-radius: 3px; }
+      .flecha { width: 6vw; font-size: clamp(28px, 7vw, 48px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .pista { transition-duration: .01ms; }
+      *, *::before, *::after { scroll-behavior: auto !important; }
+    }
+  </style>
+  <link rel="stylesheet" href="pwa-responsive.css">
+  <link rel="stylesheet" href="transiciones.css">
+  <link rel="stylesheet" href="ambiente.css">
+  <script defer src="pwa-runtime.js"></script>
+  <script defer src="transiciones.js"></script>
+  <script defer src="ambiente.js"></script>
+  <script defer src="sonidos-ui.js"></script>
+</head>
+<body>
+  <main class="pantalla" aria-label="Logros de MATHORO">
+    <img class="fondo" src="imagenes/logros.png" alt="Pantalla de logros con nueve espacios ilustrados" draggable="false">
+    <svg class="oscurecer-fondo" id="oscurecerFondo" aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <defs>
+        <mask id="mascaraLogro" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
+          <rect x="0" y="0" width="100" height="100" fill="white"></rect>
+          <rect id="ventanaLogro" x="0" y="0" width="0" height="0" rx="0.8" fill="black"></rect>
+        </mask>
+      </defs>
+      <rect x="0" y="0" width="100" height="100" fill="rgba(8,2,2,.9)" mask="url(#mascaraLogro)"></rect>
+    </svg>
+    <div class="descripcion-flotante" id="descripcionFlotante" role="status" hidden></div>
+    <div class="galeria" id="galeria" aria-label="Páginas de logros">
+      <div class="pista" id="pista" aria-live="polite"></div>
+    </div>
+    <button class="flecha flecha--anterior" id="anterior" type="button" aria-label="Ver logros anteriores" disabled>&lt;</button>
+    <button class="flecha flecha--siguiente" id="siguiente" type="button" aria-label="Ver más logros">&gt;</button>
+    <output class="estado" id="estado" role="status" aria-live="polite">Cargando tus logros…</output>
+    <button class="volver" id="volver" type="button" aria-label="Volver al menú principal" title="Volver al menú"><img src="imagenes/volver-atras.png" alt="" draggable="false"><span class="sr-only">Volver</span></button>
+  </main>
+
+  <script>
+    (() => {
+      const logros = [
+        { id: 'campeon', nombre: 'Campeón', descripcion: 'Gana tres partidas consecutivas conservando más de la mitad de tus vidas iniciales en cada una.', imagen: 'logrocampeon.png' },
+        { id: 'exponencial', nombre: 'Exponencial', descripcion: 'Gana dos partidas épicas estando bajo la mitad de tu vida mientras el jefe conserva más de la mitad.', imagen: 'logroexponencial.png' },
+        { id: 'fiuuu', nombre: 'Fiuuuuuh', descripcion: 'Derrota al jefe con el Rayo Matemático como golpe final en tres partidas.', imagen: 'logrofiuu.png' },
+        { id: 'indeciso', nombre: '¿Indeciso?', descripcion: 'Usa el poder 50/50 cuatro veces consecutivas en una misma partida.', imagen: 'logroindeciso.png' },
+        { id: 'lo-lograste', nombre: '¡Lo lograste!', descripcion: 'Gana cinco partidas sin perder ni una sola vida.', imagen: 'logrololograste.png' },
+        { id: 'que-defensa', nombre: '¡Qué defensa!', descripcion: 'Activa el poder de Escudo seis veces en una misma partida.', imagen: 'logroquedefensa.png' },
+        { id: 'campeon-ii', nombre: 'Campeón II', descripcion: 'Gana cinco partidas consecutivas sin permitir que el jefe te reduzca la vida a la mitad en ninguna de ellas.' },
+        { id: 'primera-partida', nombre: 'Racha inicial', descripcion: 'Termina tres partidas.' },
+        { id: 'puntaje-1000', nombre: 'Dos mil puntos', descripcion: 'Consigue 2.000 puntos en una partida.' },
+        { id: 'puntaje-3000', nombre: 'Cuatro mil puntos', descripcion: 'Consigue 4.000 puntos en una partida.' },
+        { id: 'puntaje-5000', nombre: 'Seis mil puntos', descripcion: 'Consigue 6.000 puntos en una partida.' },
+        { id: 'cinco-partidas', nombre: 'Constante', descripcion: 'Termina diez partidas.' },
+        { id: 'diez-partidas', nombre: 'Veterano', descripcion: 'Termina veinticinco partidas.' },
+        { id: 'tres-victorias', nombre: 'Cinco victorias', descripcion: 'Gana cinco partidas.' },
+        { id: 'diez-victorias', nombre: 'Leyenda', descripcion: 'Gana veinte partidas.' },
+        { id: 'combo-5', nombre: 'Combo x8', descripcion: 'Alcanza un combo de ocho respuestas correctas.' },
+        { id: 'combo-10', nombre: 'Combo x12', descripcion: 'Alcanza un combo de doce respuestas correctas.' },
+        { id: 'combo-15', nombre: 'Combo x18', descripcion: 'Alcanza un combo de dieciocho respuestas correctas.' },
+        { id: 'primer-rayo', nombre: 'Rayo matemático', descripcion: 'Usa el Rayo Matemático tres veces.' },
+        { id: 'cinco-rayos', nombre: 'Diez rayos', descripcion: 'Usa el Rayo Matemático diez veces.' },
+        { id: 'reflejos', nombre: 'Reflejos rápidos', descripcion: 'Responde rápido y gana puntos extra diez veces.' },
+        { id: 'mente-matematica', nombre: 'Mente matemática', descripcion: 'Responde correctamente cincuenta preguntas.' },
+        { id: 'sin-perder-vidas', nombre: 'Sin perder vidas', descripcion: 'Gana tres partidas sin perder ninguna vida.' },
+        { id: 'acumulador', nombre: 'Acumulador', descripcion: 'Acumula 30.000 puntos entre tus partidas.' }
+      ];
+      const imagenesDisponibles = ['logrocampeon.png', 'logroexponencial.png', 'logrofiuu.png', 'logroindeciso.png', 'logrololograste.png', 'logroquedefensa.png'];
+      logros.forEach((logro, indice) => {
+        if (!logro.imagen) logro.imagen = imagenesDisponibles[indice % imagenesDisponibles.length];
+      });
+      const pista = document.getElementById('pista');
+      const anterior = document.getElementById('anterior');
+      const siguiente = document.getElementById('siguiente');
+      const estado = document.getElementById('estado');
+      const oscurecerFondo = document.getElementById('oscurecerFondo');
+      const ventanaLogro = document.getElementById('ventanaLogro');
+      const descripcionFlotante = document.getElementById('descripcionFlotante');
+      let tarjetaActiva = null;
+      let paginaActual = 0;
+      let inicioDeslizamiento = null;
+      const paginas = [];
+      const logrosPorPagina = 9;
+      const cantidadPaginas = Math.ceil(logros.length / logrosPorPagina);
+      pista.style.setProperty('--cantidad-paginas', cantidadPaginas);
+      pista.style.width = `${cantidadPaginas * 100}%`;
+      for (let pagina = 0; pagina < cantidadPaginas; pagina += 1) {
+        const grid = document.createElement('section');
+        grid.className = 'pagina';
+        grid.style.flexBasis = `${100 / cantidadPaginas}%`;
+        grid.style.width = `${100 / cantidadPaginas}%`;
+        grid.setAttribute('aria-label', `Página ${pagina + 1} de logros`);
+        logros.slice(pagina * logrosPorPagina, pagina * logrosPorPagina + logrosPorPagina).forEach((logro) => {
+          const card = document.createElement('article');
+          card.className = 'tarjeta';
+          card.dataset.logro = logro.id;
+          card.tabIndex = 0;
+          card.setAttribute('aria-label', `${logro.nombre}. Bloqueado. ${logro.descripcion}`);
+          grid.appendChild(card);
+        });
+        paginas.push(grid);
+        pista.appendChild(grid);
+      }
+
+      function irA(indice) {
+        ocultarDescripcion();
+        paginaActual = Math.max(0, Math.min(cantidadPaginas - 1, indice));
+        pista.style.transform = `translateX(-${paginaActual * (100 / cantidadPaginas)}%)`;
+        anterior.disabled = paginaActual === 0;
+        siguiente.disabled = paginaActual === cantidadPaginas - 1;
+        estado.dataset.pagina = `${paginaActual + 1} de ${cantidadPaginas}`;
+        estado.textContent = `${estado.dataset.mensaje || 'Inicia sesión para guardar tus logros.'} · Página ${paginaActual + 1} de ${cantidadPaginas}`;
+      }
+
+      function mostrarDescripcion(card) {
+        const logro = logros.find((item) => item.id === card.dataset.logro);
+        if (!logro) return;
+        tarjetaActiva = card;
+        descripcionFlotante.textContent = `${logro.nombre}: ${logro.descripcion}`;
+        descripcionFlotante.hidden = false;
+        oscurecerFondo.classList.add('activo');
+
+        const rect = card.getBoundingClientRect();
+        const overlayRect = oscurecerFondo.getBoundingClientRect();
+        ventanaLogro.setAttribute('x', String(((rect.left - overlayRect.left) / overlayRect.width) * 100));
+        ventanaLogro.setAttribute('y', String(((rect.top - overlayRect.top) / overlayRect.height) * 100));
+        ventanaLogro.setAttribute('width', String((rect.width / overlayRect.width) * 100));
+        ventanaLogro.setAttribute('height', String((rect.height / overlayRect.height) * 100));
+        const tooltip = descripcionFlotante.getBoundingClientRect();
+        const margen = 12;
+        const left = Math.max(margen, Math.min(
+          rect.left + rect.width / 2 - tooltip.width / 2,
+          window.innerWidth - tooltip.width - margen
+        ));
+        const top = Math.max(margen, Math.min(
+          rect.bottom + 10,
+          window.innerHeight - tooltip.height - margen
+        ));
+        descripcionFlotante.style.left = `${left}px`;
+        descripcionFlotante.style.top = `${top}px`;
+      }
+
+      function ocultarDescripcion(card = tarjetaActiva) {
+        if (!tarjetaActiva || (card && card !== tarjetaActiva)) return;
+        tarjetaActiva = null;
+        ventanaLogro.setAttribute('width', '0');
+        ventanaLogro.setAttribute('height', '0');
+        descripcionFlotante.hidden = true;
+        oscurecerFondo.classList.remove('activo');
+      }
+
+      function actualizarTarjetas(ids) {
+        const desbloqueados = new Set(ids);
+        pista.querySelectorAll('.tarjeta').forEach((card) => {
+          const logro = logros.find((item) => item.id === card.dataset.logro);
+          if (!logro || !desbloqueados.has(logro.id)) return;
+          card.classList.add('tarjeta--desbloqueada');
+          const estadoLogro = 'Desbloqueado';
+          card.setAttribute('aria-label', `${logro.nombre}. ${estadoLogro}. ${logro.descripcion}`);
+          if (card.querySelector('img')) return;
+          const ilustracion = document.createElement('img');
+          ilustracion.src = `imagenes/${logro.imagen}`;
+          ilustracion.alt = '';
+          ilustracion.draggable = false;
+          card.replaceChildren(ilustracion);
+        });
+      }
+
+      async function cargarLogros() {
+        try {
+          const response = await fetch('/api/achievements', { cache: 'no-store', credentials: 'same-origin' });
+          if (response.status === 401) {
+            estado.dataset.mensaje = 'Inicia sesión para guardar y consultar tus logros.';
+            irA(paginaActual);
+            return;
+          }
+          const data = await readApiJson(response);
+          if (!response.ok) throw new Error(data.error || 'No se pudieron cargar los logros.');
+          const ids = (data.achievements || []).map((item) => item.achievement_id);
+          actualizarTarjetas(ids);
+          estado.dataset.mensaje = ids.length + ' desbloqueados';
+          irA(paginaActual);
+        } catch (error) {
+          estado.dataset.mensaje = error instanceof TypeError
+            ? 'Inicia server.py para cargar los logros de tu cuenta.'
+            : error.message;
+          irA(paginaActual);
+        }
+      }
+
+      async function readApiJson(response) {
+        if (!(response.headers.get('content-type') || '').includes('application/json')) {
+          throw new Error('El servidor respondió con HTML en vez de JSON. Ejecuta iniciar_mathoro.bat y abre el juego desde localhost.');
+        }
+        try { return await response.json(); }
+        catch { throw new Error('El servidor envió JSON inválido. Reinicia MATHORO con iniciar_mathoro.bat.'); }
+      }
+
+      anterior.addEventListener('click', () => irA(paginaActual - 1));
+      siguiente.addEventListener('click', () => irA(paginaActual + 1));
+      document.getElementById('volver').addEventListener('click', () => { window.navegarConFade('empiezo.html'); });
+      const galeria = document.getElementById('galeria');
+      galeria.addEventListener('pointerover', (event) => {
+        const card = event.target.closest('.tarjeta');
+        if (card) mostrarDescripcion(card);
+      });
+      galeria.addEventListener('pointerout', (event) => {
+        const card = event.target.closest('.tarjeta');
+        if (card && !card.contains(event.relatedTarget)) ocultarDescripcion(card);
+      });
+      galeria.addEventListener('focusin', (event) => {
+        const card = event.target.closest('.tarjeta');
+        if (card) mostrarDescripcion(card);
+      });
+      galeria.addEventListener('focusout', (event) => {
+        const card = event.target.closest('.tarjeta');
+        if (card && !card.contains(event.relatedTarget)) ocultarDescripcion(card);
+      });
+      document.getElementById('galeria').addEventListener('pointerdown', (event) => { inicioDeslizamiento = event.clientX; });
+      document.getElementById('galeria').addEventListener('pointerup', (event) => {
+        if (inicioDeslizamiento === null) return;
+        const diferencia = event.clientX - inicioDeslizamiento;
+        inicioDeslizamiento = null;
+        if (Math.abs(diferencia) < (window.MathoroSettings?.dragThreshold(55) ?? 55)) return;
+        irA(paginaActual + (diferencia < 0 ? 1 : -1));
+      });
+      document.getElementById('galeria').addEventListener('pointercancel', () => { inicioDeslizamiento = null; });
+      actualizarTarjetas([]);
+      cargarLogros();
+    })();
+  </script>
+</body>
+</html>
+
+

@@ -1,0 +1,49 @@
+/* Filtro y partículas comunes. Se puede retirar quitando estos includes del HTML. */
+#mathoro-color-filter {
+  position: fixed;
+  z-index: 9998;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 42%, transparent 28%, rgba(50, 25, 20, .25) 100%),
+              linear-gradient(135deg, rgba(241, 201, 145, .1), transparent 48%, rgba(90, 22, 17, .12));
+  -webkit-backdrop-filter: sepia(.14) saturate(1.2) contrast(1.08) brightness(1.025);
+  backdrop-filter: sepia(.14) saturate(1.2) contrast(1.08) brightness(1.025);
+  pointer-events: none;
+}
+
+#mathoro-particles {
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.mathoro-particle {
+  position: absolute;
+  bottom: var(--rest);
+  left: var(--left);
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background: var(--color);
+  opacity: 0;
+  animation: mathoro-rise var(--duration) linear var(--delay) infinite;
+  will-change: transform, opacity;
+}
+
+.mathoro-particle:nth-child(3n) { border-radius: 2px; }
+.mathoro-particle:nth-child(4n) { border-radius: 50% 50% 2px 50%; }
+
+/* Las páginas de acceso tienen una regla global de movimiento reducido.
+   Conservamos su accesibilidad general, pero damos a las partículas su duración real. */
+@media (prefers-reduced-motion: reduce) {
+  .mathoro-particle { animation-duration: var(--duration) !important; }
+}
+
+@keyframes mathoro-rise {
+  0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(0); }
+  12% { opacity: var(--alpha); }
+  82% { opacity: var(--alpha); }
+  100% { opacity: 0; transform: translate3d(var(--drift), -116vh, 0) rotate(260deg); }
+}
+

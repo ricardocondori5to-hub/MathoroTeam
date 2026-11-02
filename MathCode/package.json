@@ -1,0 +1,14 @@
+{
+  "name": "mathoro",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "1.2.0"
+  }
+}
